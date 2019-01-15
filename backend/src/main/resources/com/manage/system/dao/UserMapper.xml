@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.manage.system.dao.UserMapper">
+
+    <insert id="insert" parameterType="com.manage.system.model.SysUserDto" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_user
+        (user_id, user_name, password, phone, sex, email, note, rank, question, answer,status, update_time, update_user)
+        values
+        (#{userId,jdbcType=VARCHAR},#{userName,jdbcType=VARCHAR},#{password,jdbcType=VARCHAR},#{phone,jdbcType=VARCHAR},
+         #{sex,jdbcType=VARCHAR},#{email,jdbcType=VARCHAR},#{note,jdbcType=VARCHAR},#{rank,jdbcType=VARCHAR},
+         #{question,jdbcType=VARCHAR},#{answer,jdbcType=VARCHAR},#{status,jdbcType=INTEGER},now(),#{updateUser,jdbcType=VARCHAR})
+    </insert>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete from sys_user where user_id = #{userId,jdbcType=VARCHAR}
+    </delete>
+
+    <update id="updateByPrimaryKey" parameterType="com.manage.system.model.SysUserDto">
+        UPDATE sys_user
+        <set>
+            update_time = now()
+            <if test="userName != null and userName != ''">,user_name = #{userName,jdbcType=VARCHAR}</if>
+            <if test="password != null and password != ''">,password = #{password,jdbcType=VARCHAR}</if>
+            <if test="phone != null and phone != ''">,phone = #{phone,jdbcType=VARCHAR}</if>
+            <if test="sex != null and sex != ''">,sex = #{sex,jdbcType=VARCHAR}</if>
+            <if test="email != null and email != ''">,email = #{email,jdbcType=VARCHAR}</if>
+            <if test="note != null and note != ''">,note = #{note,jdbcType=VARCHAR}</if>
+            <if test="rank != null and rank != ''">,rank = #{rank,jdbcType=VARCHAR}</if>
+            <if test="question != null and question != ''">,question = #{question,jdbcType=VARCHAR}</if>
+            <if test="answer != null and answer != ''">,answer = #{answer,jdbcType=VARCHAR}</if>
+            <if test="status != null and status != ''">,status = #{status,jdbcType=INTEGER}</if>
+            <if test="updateUser != null and updateUser != ''">,update_user = #{updateUser,jdbcType=VARCHAR}</if>
+        </set>
+        WHERE user_id = #{userId,jdbcType=VARCHAR}
+    </update>
+
+    <update id="changePassword">
+        UPDATE sys_user
+        SET password = #{password,jdbcType=VARCHAR}, update_time = now()
+        WHERE user_id = #{userId,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectAll" resultType="com.manage.system.model.SysUserDto">
+        SELECT DISTINCT su.user_id, su.user_name, su.password, su.phone, su.sex, su.email, su.note,
+        su.rank, su.question, su.answer, su.status, su.update_user, su.update_time
+        FROM sys_user su
+        <if test="departs != null and departs.size() > 0">
+            , sys_user_role sur, sys_role sr ,sys_depart sd
+        </if>
+        <where>
+            <if test="userId != null and userId != ''">su.user_id LIKE #{userId,jdbcType=VARCHAR}</if>
+            <if test="userId != null and userId != ''">OR user_name LIKE #{userId,jdbcType=VARCHAR}</if>
+            <if test="departs != null and departs.size() > 0">
+                AND sur.user_id = su.user_id
+                AND sur.role_id = sr.id
+                AND sr.depart_id = sd.id
+                AND sd.id in
+                <foreach collection="departs" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="status != null and status != ''">AND su.status = #{status,jdbcType=VARCHAR}</if>
+        </where>
+    </select>
+
+    <select id="selectByPrimaryKey" resultType="com.manage.system.model.SysUserDto">
+        select user_id, user_name, password, phone, sex, email, note, rank,
+        question, answer,status, update_time, update_user
+        from sys_user
+        where user_id = #{userId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByUserId" resultType="com.manage.system.model.SysUserDto">
+        select user_id, user_name, password, phone, sex, email, note, rank,
+        question, answer,status, update_time, update_user
+        from sys_user
+        where user_id = #{userId,jdbcType=VARCHAR}
+    </select>
+</mapper>

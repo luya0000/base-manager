@@ -1,0 +1,220 @@
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <!-- /.box-header -->
+            <div class="box-header">
+                <div>
+                    <div class="col-sm-3">
+                        <input id="depart_name" type="text" class="form-control" placeholder="部门名称"/>
+                    </div>
+                    <button class="btn btn-primary" id="queryDepartTable" onclick="queryDepartTable();">查询</button>
+                    <a href="javascript:void(0);" class="btn btn-primary " data-toggle="modal"
+                       onclick="showAddDepartModel();"
+                       data-target="#departModal">新增部门</a>
+                </div>
+            </div>
+            <div class="box-body">
+                <table id="depart_table" class="table table-bordered table-hover"
+                       style="font-size: 12px;" width="100%">
+                    <thead>
+                    <tr>
+                        <th>部门名称</th>
+                        <th>备注</th>
+                        <th>最后更新时间</th>
+                        <th>最后更新人</th>
+                        <th>编辑</th>
+                    </tr>
+                    </thead>
+                </table>
+                <div id="page" class="page" style="float: right;"></div>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+    </div>
+    <!-- /.col -->
+</div>
+<!-- /.row -->
+<!-- 新增/编辑用户Modal -->
+<div class="modal fade" id="departModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalTitle">新增部门</h4>
+            </div>
+            <div class="modal-body">
+                <!-- form start -->
+                <form class="form-horizontal" id="departForm">
+                    <input type="hidden" id="departId" name="departId">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label for="departId" class="col-sm-4 control-label">部门编号</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control validate" id="departCode" name="departCode"
+                                       placeholder="部门编号（半角英文数字）">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="departName" class="col-sm-4 control-label">部门名称</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control validate" id="departName" name="departName"
+                                       placeholder="部门名称将作为菜单显示">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="note" class="col-sm-4 control-label">备注</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="note" name="note" placeholder="备注信息">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.box-body -->
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    关<span style="padding-left: 12px"/>闭
+                </button>
+                <button type="button" class="btn btn-primary" id="addDepart" onclick="addDepart();">
+                    保<span style="padding-left: 12px"/>存
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--数据列表-->
+<script type="text/template" id="depart_table_content">
+    <tbody>
+    {@each data as item ,index}
+    <tr>
+        <td style="vertical-align:middle">@{item.name}</td>
+        <td style="vertical-align:middle">@{item.note}</td>
+        <td style="vertical-align:middle">@{item.updateTime}</td>
+        <td style="vertical-align:middle">@{item.updateUser}</td>
+        <td style="vertical-align:middle">
+            {@if item.code != 'SYSTEM'}
+            <a href="javascript:void(0);" class="depart_del" title="删除部门信息"
+               data-con-id="@{item.id}">删除</a>
+            {@/if}
+        </td>
+    </tr>
+    {@/each}
+    </tbody>
+
+</script>
+
+<script src="../plugins/js/common.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        // 初始化表格数据
+        dataShowPage($("#page"), "/sys/depart/list", "GET", "", showTableData, startPage);
+
+        $("#depart_table").delegate('.depart_del', "click", function () {
+            var departId = $(this).attr("data-con-id");
+            var index = layer.confirm('删除不可恢复，确认删除？', {
+                btn: ['删除', '取消'] //按钮
+            }, function () {
+                myAjax("POST", true, "/sys/depart/delete/" + departId, null, function (result, status) {
+                    if (result.code === 200) {
+                        layer.msg('删除成功.');
+                    } else {
+                        layer.msg(result.message);
+                    }
+                    layer.close(index);
+                    queryDepartTable();
+                });
+            })
+        });
+    });
+
+    /*查询部门数据*/
+    function queryDepartTable() {
+        var queryParms = {
+            departName: $('#depart_name').val(),
+        };
+        dataShowPage($("#page"), "/sys/depart/list", "GET", queryParms, showTableData);
+    }
+
+    /*处理表格数据呈现*/
+    function showTableData(result) {
+        if (result.code === 200) {
+            var tableContent = juicer($("#depart_table_content").text(), result.content);
+            $('#depart_table').find('td').remove();
+            $('#depart_table').append(tableContent);
+        } else {
+            alert(result.message);
+        }
+    }
+
+    /*添加model打开处理*/
+    function showAddDepartModel() {
+        $("#departForm").find("input[id='departCode']").attr("readonly", false);
+        $("#departForm").find("input[id='departCode']").val("");
+        $("#departForm").find("input[id='departName']").val("");
+        $("#departForm").find("input[id='note']").val("");
+        $("#departForm").find('.formtips').remove().end();
+        $("#departForm").find('.has-error').removeClass("has-error");
+        $("#departForm").find('.has-success').removeClass("has-success");
+        // 设置按钮显示
+        $('#editDepart').hide();
+        $('#addDepart').show();
+    }
+
+    /*添加部门*/
+    function addDepart() {
+        var departForm = $("#departForm").serialize();
+        if (!checkInput($("#departForm"))) {
+            return;
+        }
+        myAjax("POST", true, "/sys/depart/add", departForm, function (result) {
+            if (result.code === 200) {
+                layer.msg('添加成功.');
+            } else {
+                layer.msg(result.message);
+            }
+            $("#departModal").modal('hide');
+            queryDepartTable();
+        });
+    }
+
+    /** 添加或编辑时的表单验证 */
+    function checkInput(form) {
+        var ret = true;
+        //校验所有带有validate的class
+        $(form).find(".validate").each(function () {
+            if (ret) {
+                ret = setFormTips(this);
+            }
+        });
+        return ret;
+    }
+
+    /** 表单验证提示效果 */
+    function setFormTips(field) {
+        $(field).parent().find('.formtips').remove().end();
+        var v = $(field).val();
+        // 返回结果
+        var result = true;
+        if (v == '') {
+            $(field).closest('.form-group').addClass('has-error');
+            $(field).parent().append('<span class="formtips" style="color:#dd4b39">不能为空</span>');
+            result = false;
+        } else if ($(field).attr("id") == 'departCode' && !matchEngNum.test(v)) {
+            $(field).closest('.form-group').addClass('has-error');
+            $(field).parent().append('<span class="formtips" style="color:#dd4b39">格式不正确!(只能为英文或数字或英文数字组合)</span>');
+            result = false;
+        } else {
+            $(field).closest('.form-group').removeClass('has-error');
+//            $(field).closest('.form-group').removeClass('has-error').addClass('has-SUCCESS');
+        }
+        return result;
+    }
+
+
+</script>

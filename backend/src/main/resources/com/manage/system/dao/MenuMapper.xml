@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.manage.system.dao.MenuMapper">
+
+    <insert id="insert" parameterType="com.manage.system.model.SysMenuDto" useGeneratedKeys="true" keyProperty="id">
+       insert into sys_menu (parent_id, name, icon, url, type, `order`, status, update_user, update_time)
+	    values
+	  (#{parentId,jdbcType=INTEGER},#{name,jdbcType=VARCHAR},#{icon,jdbcType=VARCHAR},#{url,jdbcType=VARCHAR},#{type,jdbcType=INTEGER},
+	   #{order,jdbcType=INTEGER},#{status,jdbcType=INTEGER},#{updateUser,jdbcType=VARCHAR},now());
+    </insert>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        DELETE FROM sys_menu WHERE ID = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <select id="selectByParam" resultType="com.manage.system.model.SysMenuDto">
+        select distinct sm.id,
+        sm.parent_id as parentId,
+        sd.id as departId,
+        sm.name as name,
+        sm.icon as icon,
+        sm.url as url,
+        sm.type as type,
+        sm.order,
+        sm.status as status,
+        sm.update_user as updateUser,
+        sm.update_time as updateTime
+        from sys_menu sm left join sys_depart sd on  sm.id = sd.menu_id
+        <where>
+            <if test="name != null and name != ''"> name LIKE #{name,jdbcType=VARCHAR}</if>
+            <if test="parentId != null">AND parent_id = #{parentId,jdbcType=INTEGER}</if>
+            <if test="types != null and types.size() > 0">
+                AND type in
+                <foreach collection="types" index="index" item="type" open="(" separator="," close=")">
+                    #{type}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- 获取用户菜单列表-->
+    <select id="selectMenuByUserId" resultType="com.manage.system.model.SysMenuDto">
+        select distinct sm.id,
+        sm.parent_id as parentId,
+        sm.name as name,
+        sm.icon as icon,
+        sm.url as url,
+        sm.type as type,
+        sm.order,
+        sm.status as status,
+        sm.update_user as updateUser,
+        sm.update_time as updateTime
+        from sys_role_menu srm , sys_menu sm, sys_user_role sur
+        where
+        sur.role_id = srm.role_id
+        and srm.menu_id = sm.id
+        and sur.user_id =  #{userId,jdbcType=VARCHAR}
+        <if test="types != null and types.size() > 0">
+            AND sm.type in
+            <foreach collection="types" index="index" item="type" open="(" separator="," close=")">
+                #{type}
+            </foreach>
+        </if>
+        order by sm.order
+    </select>
+    <!-- 获取用户菜单列表-->
+    <select id="selectMenuByRoleId" resultType="com.manage.system.model.SysMenuDto">
+        select distinct sm.id,
+        sm.parent_id as parentId,
+        sm.name as name,
+        sm.icon as icon,
+        sm.url as url,
+        sm.type as type,
+        sm.order,
+        sm.status as status,
+        sm.update_user as updateUser,
+        sm.update_time as updateTime
+        from sys_role_menu srm , sys_menu sm
+        where
+        srm.menu_id = sm.id
+        and srm.role_id = #{roleId,jdbcType=INTEGER}
+        <if test="types != null and types.size() > 0">
+            AND sm.type in
+            <foreach collection="types" index="index" item="type" open="(" separator="," close=")">
+                #{type}
+            </foreach>
+        </if>
+        order by sm.order
+    </select>
+
+    <select id="selectByPrimaryKey" resultType="com.manage.system.model.SysMenuDto">
+        select sm.id,
+        sm.parent_id as parentId,
+        sm.name as name,
+        sm.icon as icon,
+        sm.url as url,
+        sm.type as type,
+        sm.order,
+        sm.status as status,
+        sm.update_user as updateUser,
+        sm.update_time as updateTime
+        from sys_menu sm,
+        WHERE id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <update id="updateByPrimaryKey" parameterType="com.manage.system.model.SysMenuDto">
+        UPDATE sys_menu
+        <set>
+            <if test="parentId != null and parentId != ''">parent_id = #{parentId,jdbcType=VARCHAR},</if>
+            <if test="name != null and name != ''">name = #{name,jdbcType=VARCHAR},</if>
+            <if test="icon != null and icon != ''">icon = #{icon,jdbcType=VARCHAR},</if>
+            <if test="url != null and url != ''">url = #{url,jdbcType=VARCHAR},</if>
+            <if test="type != null and type != ''">type = #{type,jdbcType=VARCHAR},</if>
+            <if test="order != null and order != ''">order = #{order,jdbcType=VARCHAR},</if>
+            <if test="status != null and status != ''">status = #{status,jdbcType=VARCHAR},</if>
+            <if test="updateUser != null and updateUser != ''">update_user = #{updateUser,jdbcType=VARCHAR},</if>
+            update_time = now()
+        </set>
+        where
+        id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="getOrder" resultType="java.lang.Integer">
+        select case when max(sm.order) is null then 0 else  max(sm.order) end  from sys_menu sm
+        <where>
+            <if test="parentId != null">sm.parent_id = #{parentId,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+</mapper>

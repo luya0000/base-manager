@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.manage.system.dao.RoleMapper">
+
+    <insert id="insert" parameterType="com.manage.system.model.SysRoleDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_role (name, depart_id, note,update_time,update_user)
+        VALUES (#{name,jdbcType=VARCHAR},#{departId,jdbcType=INTEGER}, #{note,jdbcType=VARCHAR},now(),#{updateUser,jdbcType=VARCHAR})
+    </insert>
+
+    <delete id="deleteByPrimaryKey">
+        DELETE FROM sys_role
+        <where>
+            <if test="id != null">ID = #{id,jdbcType=INTEGER}</if>
+            <if test="departId != null">AND depart_id = #{departId,jdbcType=INTEGER}</if>
+        </where>
+    </delete>
+
+    <select id="selectAll" resultType="com.manage.system.model.SysRoleDto">
+        SELECT sr.id, sr.name, sd.id as departId,sd.name as departName,sr.note, sr.update_time,sr.update_user
+        FROM sys_role sr
+        left join sys_depart sd on sr.depart_id = sd.id
+        <where>
+            <if test="name != null and name != ''">sr.name LIKE #{name,jdbcType=VARCHAR}</if>
+            <if test="departIds != null and departIds.size() > 0">
+                AND sd.id in
+                <foreach collection="departIds" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByPrimaryKey" resultType="com.manage.system.model.SysRoleDto">
+        SELECT sr.id, sr.name, sd.id as departId,sd.name as departName,sr.note, sr.update_time,sr.update_user
+        FROM sys_role sr
+        left join sys_depart sd on sr.depart_id = sd.id
+        WHERE sr.id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <update id="updateByPrimaryKey" parameterType="com.manage.system.model.SysRoleDto">
+        UPDATE sys_role
+        <set>
+            <if test="name != null and name != ''">name = #{name,jdbcType=VARCHAR},</if>
+            <if test="departId != null">depart_id = #{departId,jdbcType=INTEGER},</if>
+            <if test="note != null and note != ''">note = #{note,jdbcType=VARCHAR},</if>
+            <if test="updateUser != null and updateUser != ''">update_user = #{updateUser,jdbcType=VARCHAR},</if>
+            update_time = now()
+        </set>
+        WHERE id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="selectByDepartId" resultType="com.manage.system.model.SysRoleDto">
+        SELECT distinct sr.id, sr.name, sr.depart_id as departId,sr.note, sr.update_time,sr.update_user
+        FROM sys_role sr , sys_user_role sur
+        WHERE sr.id = sur.role_id
+        AND sr.depart_id = #{departId,jdbcType=INTEGER}
+    </select>
+
+</mapper>

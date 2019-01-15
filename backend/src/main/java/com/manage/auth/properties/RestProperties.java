@@ -1,0 +1,25 @@
+package com.manage.auth.properties;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * 读取配置文件
+ * 项目相关配置
+ */
+@Configuration
+@ConfigurationProperties(prefix = RestProperties.REST_PREFIX)
+public class RestProperties {
+
+    public static final String REST_PREFIX = "rest";
+
+    private boolean authOpen = true;
+
+    public boolean isAuthOpen() {
+        return authOpen;
+    }
+
+    public void setAuthOpen(boolean authOpen) {
+        this.authOpen = authOpen;
+    }
+}

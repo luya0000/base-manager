@@ -1,0 +1,30 @@
+version: '2'
+services:
+  doc-manager:
+    image: doc-manager:v1.0
+    container_name: manager
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:z
+      - /data/app/manager/file:/data/docfile
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=jeeplatform
+      - DB_USER=root
+      - DB_PASS=123456
+      - FILE_PATH=/data/docfile
+    ports:
+      - "18080:8090"
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql:5.6
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:z
+      - /data/app/mysql/data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - "13306:3306"

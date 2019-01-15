@@ -1,0 +1,362 @@
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div style="padding-bottom: 5px;margin-left:20px;">
+                    <!--根路径-->
+                    <input id="path" type="hidden" value="">
+                    <a class="btn btn-default" id="return"><i class="fa fa-mail-reply"> 返回</i></a>
+                    <a class="btn btn-default" id="uploadFile"><i class="fa fa-upload"> 上传文件</i></a>
+                    <a class="btn btn-default" id="newFile"><i class="fa fa-plus"> 新建文件夹</i></a>
+                    <!--<a class="btn btn-default" id="viewFile"><i class="fa fa-eye"> 预览文件</i></a>-->
+                    <a class="btn btn-default" id="downloadFile"><i class="fa fa-download"> 下载文件</i></a>
+                    <a class="btn btn-danger" id="deleFile"><i class="fa fa-bitbucket"> 删除</i></a>
+                </div>
+                <div class="fileManage" style="padding-bottom: 5px;margin-left:20px;">
+                    <table class="table" id="fileTable">
+                        <tbody>
+                        <tr>
+                            <th style="width: 10px"><input type="checkbox" id="All"></th>
+                            <th>文件名称</th>
+                            <th>更新日期</th>
+                            <th>大小</th>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+    </div>
+    <!-- /.col -->
+</div>
+<!-- /.row -->
+
+<!--文件上传model-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">文件上传列表</h4>
+            </div>
+            <div class="modal-body">
+                <!-- Horizontal Form -->
+                <div class="box box-info" style="margin-bottom:0px;">
+                    <!-- form start -->
+                    <form class="form-horizontal">
+                        <table id="thelist" class="table table-condensed">
+                            <tbody>
+                            <tr>
+                                <th style="width: 60%">任务名</th>
+                                <th style="width: 40%">状态</th>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <!-- /.box-body -->
+                    </form>
+                </div>
+                <!-- /.box -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 根目录
+    var rootPath;
+    $(document).ready(function () {
+        // 获取根路径
+        var menuId = $('#menuIdHidden').val();
+        if (!menuId) {
+            menuId = localStorage.getItem('contentMenuId');
+            $('#menuIdHidden').val(menuId);
+        }
+        myAjax("get", true, "/sys/file/getBasePath", {"menuId": menuId}, getRootPath);
+        // 文件绑定事件
+        $('#fileTable').delegate('.c_path', "click", function () {
+            var newPath = $("#path").val() + "/" + this.innerText;
+            $("#path").val(newPath);
+            searchFile(newPath);
+        });
+        //$(".webuploader-pick").remove("class");
+    })
+
+    // 获取根路径
+    function getRootPath(result, status) {
+        if (result.code == 200 && result.content != "") {
+            rootPath = result.content;
+            $("#path").val(result.content);
+            searchFile($("#path").val());
+        } else {
+            layer.alert('根路径获取失败，联系管理员！', {
+                skin: 'layui-layer-lan' //样式类名
+                , closeBtn: 0
+            });
+        }
+    }
+
+    /*查询路径文件*/
+    function searchFile(_path) {
+        var data = {
+            "path": _path,
+            "menuId": $('#menuIdHidden').val()
+        }
+        myAjax("GET", false, "/sys/file/fileList", data, searchFileCallBack);
+    }
+
+    /*查询路径文件后处理*/
+    function searchFileCallBack(result, status) {
+        if (result.code != 200) {
+            layer.alert(result.message, {
+                skin: 'layui-layer-lan' //样式类名
+                , closeBtn: 0
+            });
+            var path = $("#path").val();
+            // 到达根路径不需要再操作
+            if (rootPath.indexOf(path) > 0) {
+                return;
+            }
+            // 不是根路径向上返回一级
+            var pathNew = path.substr(0, path.lastIndexOf("/"));
+            if (pathNew != "") {
+                $("#path").attr("value", pathNew);
+                searchFile(pathNew);
+            }
+        } else {
+            $('#fileTable').find('td').remove();
+            var tableList = "";
+
+            $.each(result.content, function (i, item) {
+                tableList += [
+                    '<tr><td><input type="checkbox" class="fileCheckBox"/></td>',
+                    '<td><input type = "hidden" class = "fileType" value="' + item.type + '"/>',
+                    '<input type = "hidden" class = "filePath" value="' + item.path + '"/>',
+                    '<img src="../resource/img/file/' + item.pic + '" alt=""/>',
+                    '<span class="c_' + item.type + '" style="cursor: pointer;">' + item.name + '</span></td>',
+                    '<td>' + item.date + '</td>',
+                    '<td>' + (item.type == "file" ? (item.size + ' ' + item.unit) : "") + '</td>'
+                ].join('');
+            });
+            $('#fileTable').append(tableList);
+        }
+    }
+
+    /*返回按钮*/
+    $("#return").click(function () {
+        var path = $("#path").val();
+        if (rootPath.indexOf(path) >= 0) {
+            layer.alert('已经到达跟目录！', {
+                skin: 'layui-layer-lan' //样式类名
+                , closeBtn: 0
+            });
+        } else {
+            var pathNew = path.substr(0, path.lastIndexOf("/"));
+            if (pathNew != "") {
+                $("#path").attr("value", pathNew);
+                searchFile(pathNew);
+            }
+        }
+    });
+
+    /*新建文件夹*/
+    $("#newFile").click(function () {
+        layer.prompt({title: '文件夹名称', formType: 3}, function (text, index) {
+            var path = $("#path").val();
+            if (text == "") {
+                layer.msg("文件名不能为空");
+                return false;
+            }
+            myAjax("post", false, "/sys/file/newdir", {
+                "path": path,
+                "dir": text,
+                "menuId": $('#menuIdHidden').val()
+            }, function (result, status) {
+                if (result.code != 200) {
+                    layer.msg(result.message);
+                }
+            });
+            layer.close(index);
+            searchFile(path);
+        });
+    });
+
+    /*删除文件或文件夹*/
+    <!-- 选择全部/全不选 -->
+    $("#All").click(function () {
+        if (this.checked) {
+            $(".fileCheckBox").prop("checked", true);
+        } else {
+            $(".fileCheckBox").prop("checked", false);
+        }
+    });
+
+    $("#deleFile").click(function () {
+        layer.confirm('删除后不可恢复，确认删除？', {
+            btn: ['删除', '取消'] //按钮
+        }, function () {
+            // 选择列表
+            var paths = "";
+            $.each($('.fileCheckBox'), function () {
+                if (this.checked) {
+                    paths += $(this).parent().parent().find(".filePath").val();
+                    paths += "<>";
+                }
+            });
+            if (paths === "") {
+                layer.msg("请选择一个文件");
+                return false;
+            }
+            myAjax("post", false, "/sys/file/delete", {
+                "paths": paths,
+                "menuId": $('#menuIdHidden').val()
+            }, function (result, status) {
+                if (result.code != 200) {
+                    layer.alert(result.message, {
+                        skin: 'layui-layer-lan' //样式类名
+                        , closeBtn: 0
+                    });
+                    searchFile($("#path").val());
+                    return;
+                } else if (result.content != "") {
+                    var fileNames = "";
+                    for (var i = 0; i < result.content.length; i++) {
+                        fileNames += result.content[i] + "<br>";
+                    }
+                    layer.alert("以下文件删除失败！<br>" + fileNames, {
+                        skin: 'layui-layer-lan' //样式类名
+                        , closeBtn: 0
+                    });
+                } else {
+                    layer.msg("删除成功");
+                }
+                searchFile($("#path").val());
+            });
+        });
+    });
+
+    /*下载文件*/
+    $("#downloadFile").click(function () {
+        // 选择列表
+        var paths = "";
+        var fileType = "";
+        $.each($('.fileCheckBox'), function () {
+            if (this.checked) {
+                fileType = $(this).parent().parent().find(".fileType").val();
+                if (fileType == "path") {
+                    layer.msg("不支持文件夹下载!");
+                    paths = "";
+                    return false;
+                }
+                paths += $(this).parent().parent().find(".filePath").val();
+                // paths += "~";
+            }
+        });
+        download("/sys/file/download", paths, "post");
+    });
+
+
+    function download(url, data, method) {
+        //url and data options required
+        if (url && data) {
+            var inputs = '';
+            inputs += '<input type="hidden" name="paths" value="' + data + '" />';
+            inputs += '<input type="hidden" name="menuId" value="' + $('#menuIdHidden').val() + '" />';
+            inputs += '<input type="hidden" name="Authorization" value="' + localStorage.getItem('JWT_TOKEN') + '" />';
+            //send request
+            jQuery('<form action="' + url + '" method="' + (method || 'post') + '">' + inputs + '</form>')
+                    .appendTo('body').submit().remove();
+        }
+    }
+
+    /*上传文件*/
+    function uploadFileAll(_path) {
+        var $ = jQuery,
+                $list = $('#thelist'),
+                state = 'pending';
+
+        var uploader = WebUploader.create({
+            swf: 'Uploader.swf',// swf文件路径
+            auto: true, // 选完文件后，是否自动上传
+            duplicate: true, // 开起分片上传。
+            paste: "document.body",
+            pick: '#uploadFile',// 选择文件的按钮。可选。
+            prepareNextFile: true,//是否允许在文件传输时提前把下一个文件准备好
+            resize: true,// 不压缩image
+
+            formData: {
+                path: _path,
+                name: "zzzzzzzzz",
+                menuId: $('#menuIdHidden').val()
+            },
+            method: "post",
+            fileNumLimit: 50,//验证文件总数量, 超出则不允许加入队列
+            server: '/sys/file/upload-file',// 文件接收服务端。
+            sendAsBinary: true,
+            headers: {Authorization: localStorage.getItem('JWT_TOKEN')}
+            //extensions: 'img',
+        });
+        //uploader.options.formData.uid = $("#path").val();//全局参数
+        //局部参数
+        uploader.on('uploadBeforeSend', function (obj, data, headers) {
+            $('#myModal').modal({backdrop: 'static', keyboard: false});
+            var path_update = $("#path").val();
+            data['path'] = path_update;
+        });
+
+        //当有文件添加进来的时候
+        uploader.on('fileQueued', function (file) {
+            var tableList = "";
+            tableList += [
+                '<tr id="' + file.id + '">',
+                '<td class="item"><h5 class="info">' + file.name + '</h5></td>',
+                '<td class="state" style="vertical-align:middle;">等待上传..</td>',
+                '</tr>'
+            ].join('');
+            $list.append(tableList);
+        });
+
+        //文件上传过程中创建进度条实时显示。
+        uploader.on('uploadProgress', function (file, percentage) {
+            var $li = $('#' + file.id).find('.item');
+            var $percent = $li.find('.progress .progress-bar');
+
+            // 避免重复创建
+            if (!$percent.length) {
+                $percent = $('<div class="progress progress-striped active">' +
+                        '<div class="progress-bar" role="progressbar" style="width: 0%">' +
+                        '</div>' +
+                        '</div>').appendTo($li).find('.progress-bar');
+            }
+            $('#' + file.id).find('.state').text('上传中');
+            $percent.css('width', percentage * 100 + '%');
+        });
+
+        uploader.on('uploadSuccess', function (file) {
+            $('#' + file.id).find('.state').text('已上传');
+            var path_update = $("#path").val();
+            searchFile(path_update);
+        });
+
+        uploader.on('uploadError', function (file, status) {
+            if (status == 400 || status == 401 || status == 402) {
+                $('#' + file.id).find('.state').text('上传失败，无操作权限');
+            }else {
+                $('#' + file.id).find('.state').text('上传失败，发生异常');
+            }
+        });
+        uploader.on('uploadComplete', function (file) {
+            $('#' + file.id).find('.progress').fadeOut();
+            searchFile($("#path").val());
+        });
+
+    }
+    var path_update = $("#path").val();
+    uploadFileAll(path_update);
+
+
+</script>

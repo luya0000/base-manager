@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>文档管理系统</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!--<link rel="icon" type="image/x-icon" src="../resource/img/favicon.ico" />-->
+    <link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../plugins/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../plugins/css/ionicons.min.css">
+    <link rel="stylesheet" href="../plugins/css/AdminLTE.css">
+    <link rel="stylesheet" href="../plugins/css/skins/skin-blue.min.css">
+    <link rel="stylesheet" href="../plugins/layer/theme/default/layer.css">
+    <link rel="stylesheet" href="../plugins/layui/css/layui.css">
+    <link rel="stylesheet" href="../plugins/pace/pace.min.css">
+    <link rel="stylesheet" href="../plugins/uploader/webuploader.css">
+    <link rel="icon" type="image/x-icon" href="../resource/img/favicon.ico">
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<!-- Site wrapper -->
+<div class="wrapper">
+
+    <header class="main-header">
+        <a href="#" class="logo">
+            文档管理
+        </a>
+        <!-- Header Navbar: style can be found in header.less -->
+        <nav class="navbar navbar-static-top" role="navigation">
+            <!-- Sidebar toggle button-->
+            <input id="menuIdHidden" type="hidden" value="">
+            <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button"></a>
+            <!--文件查询-->
+            <!--<form class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="navbar-search-input" placeholder="Search">
+                </div>
+            </form>-->
+            <!--末端设置-->
+            <div class="navbar-custom-menu">
+                <ul class="nav navbar-nav">
+                    <!-- Notifications Dropdown Menu -->
+                    <li class="dropdown user-menu">
+
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <img src="../resource/img/user2-160x160.jpg" class="user-image" alt="User Image">
+                            <span class="hidden-xs username"></span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-sm" style="width: auto">
+                            <a href="javascript:void(0);" data-target="#updateUserPassModal" data-toggle="modal"
+                               class="dropdown-item updateUserPassword">修改密码</a>
+                            <a href="/signout" class="dropdown-item">退出</a>
+                        </div>
+                        <!-- Message End -->
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <aside class="main-sidebar">
+        <!-- sidebar: style can be found in sidebar.less -->
+        <section class="sidebar">
+            <!-- Sidebar user panel -->
+            <div class="user-panel">
+                <div class="pull-left image">
+                    <img src="../resource/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+                </div>
+                <div class="pull-left info">
+                    <p class="username">User Name</p>
+                    <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                </div>
+            </div>
+
+            <!-- sidebar menu: : style can be found in sidebar.less -->
+            <ul class="sidebar-menu">
+                <li class="header">主菜单</li>
+                <li><a href="#/view/file_manage" id="dashboard" class="home-menu">我的文档</a></li>
+            </ul>
+        </section>
+        <!-- /.sidebar -->
+    </aside>
+
+    <!-- =============================================== -->
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1 id="title"></h1>
+            <ol class="breadcrumb">
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+
+        </section>
+        <!-- /.content -->
+    </div>
+
+    <!-- /.content-wrapper -->
+    <footer class="main-footer">
+        <div class="pull-right hidden-xs">
+        </div>
+        <div align="center"><strong title="title">Copyright &copy; 2018-2020 </strong> 版权所有。</div>
+    </footer>
+    <div class="control-sidebar-bg"></div>
+</div>
+
+<div class="modal fade" id="updateUserPassModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改密码</h4>
+            </div>
+            <div class="modal-body">
+                <!-- form start -->
+                <form class="form-horizontal" id="updateUserPassForm">
+                    <div class="box-body">
+                        <input type="hidden" id="userId" name="userId">
+                        <div class="form-group">
+                            <label for="password" class="col-sm-4 control-label">当前密码</label>
+                            <div class="col-sm-7">
+                                <input type="password" class="form-control validate" id="password" name="password"
+                                       placeholder="密码">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="col-sm-4 control-label">新密码</label>
+                            <div class="col-sm-7">
+                                <input type="password" class="form-control validate" id="newPassword" name="newPassword"
+                                       placeholder="新密码">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="col-sm-4 control-label">确认密码</label>
+                            <div class="col-sm-7">
+                                <input type="password" class="form-control validate" id="confirmPassword"
+                                       name="confirmPassword" placeholder="确认密码">
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- /.box-body -->
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    关<span style="padding-left: 12px"/>闭
+                </button>
+                <button type="button" class="btn btn-primary" id="updatePassword" onclick="updatePassword();">
+                    修<span style="padding-left: 12px"/>改
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../plugins/jQuery/jQuery-2.1.4.min.js"></script>
+<script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
+<script src="../plugins/js/app.min.js"></script>
+<script src="../plugins/js/juicer.js"></script>
+<script src="../plugins/pace/pace.min.js"></script>
+<script src="../plugins/uploader/webuploader.min.js"></script>
+<script src="../plugins/layui/layui.js"></script>
+<script src="../plugins/layer/layer.js"></script>
+<script src="../resource/js/router.js"></script>
+<script src="../resource/js/laypage.js"></script>
+<script src="../resource/js/myajax.js"></script>
+<script src="../resource/js/main.js"></script>
+<!-- page script -->
+<script type="text/javascript">
+    //弹开修改用户密码页面之前，查询当前用户信息填充表单数据
+    $(".navbar-custom-menu").delegate('.updateUserPassword', "click", function () {
+        //获取用户数据
+        myAjax("GET", true, "/loginUser", null, getLoginInfo);
+    });
+    // 设置登陆的用户信息
+    function getLoginInfo(result, status) {
+        if (result.code == 200) {
+            var user = result.data;
+            var form = $("#updateUserPassForm");
+            form.find("input[id='userId']").val(user.userId);
+            form.find("input[id='password']").val('');
+            form.find("input[id='newPassword']").val('');
+            form.find("input[id='confirmPassword']").val('');
+        }
+    }
+    function updatePassword() {
+        if (!formValidation($("#updateUserPassForm"))) {
+            return;
+        }
+        /*查询路径文件*/
+        var data = {
+            userId: $("#userId").val(),
+            oldPass: $("#password").val(),
+            newPass: $("#newPassword").val(),
+            confPass: $("#confirmPassword").val()
+        }
+        myAjax("POST", true, "/sys/user/password", data, updateResult);
+    }
+
+    function updateResult(result, status) {
+        if (result.code != 200) {
+            layer.msg(result.message);
+        } else {
+            layer.msg("密码修改成功！");
+        }
+        $("#updateUserPassModal").modal('hide');
+    }
+
+    function formValidation(form) {
+        var ret = true;
+        //校验所有带有validate的class
+        $(form).find(".validate").each(function () {
+            if (ret) {
+                ret = setInputTips(this);
+            }
+        });
+        return ret;
+    }
+    /** 表单验证提示效果 */
+    function setInputTips(field) {
+        $(field).parent().find('.formtips').remove().end();
+        var password = new RegExp("^[a-zA-Z0-9]{6,16}$");
+        var v = $(field).val();
+        // 返回结果
+        var result = true;
+        if (v === '') {
+            $(field).closest('.form-group').addClass('has-error');
+            $(field).parent().append('<span class="formtips" style="color:#dd4b39">不能为空!</span>');
+            result = false;
+        } else if ($(field).attr("id") == 'newPassword' && !password.test(v)) {
+            $(field).closest('.form-group').addClass('has-error');
+            $(field).parent().append('<span class="formtips" style="color:#dd4b39">密码格式不正确!(只能为英文或数字组合，6到16位)</span>');
+            result = false;
+        } else if ($(field).attr("id") == 'confirmPassword' && !password.test(v)) {
+            $(field).closest('.form-group').addClass('has-error');
+            $(field).parent().append('<span class="formtips" style="color:#dd4b39">密码格式不正确!(只能为英文或数字组合，6到16位)</span>');
+            result = false;
+        } else if ($(field).attr("id") == 'confirmPassword' && v != $("#newPassword").val()) {
+            $(field).closest('.form-group').addClass('has-error');
+            $(field).parent().append('<span class="formtips" style="color:#dd4b39">确认密码与新密码不一致</span>');
+            result = false;
+        } else {
+            $(field).closest('.form-group').removeClass('has-error');
+        }
+        return result;
+    }
+    function setTitle(link) {
+        if ($(link).attr("data") !== '') {
+            var parent = $(link).closest("ul").parent().find('span').first().text();
+            var subparent = '';
+            var item = $(link).text();
+
+            if (parent === '') {
+                subparent = $(link).closest("ul").parent().find('a').first().text();
+                parent = $(link).closest(".treeview").find("span").text();
+            }
+
+            $(".breadcrumb").html("<li><a href='index'><i class='fa fa-dashboard'></i> Home</a></li><li>" + parent + "</li>");
+
+            if (subparent === '') {
+                $("#title").html(parent + "<small>" + item + "</small>");
+            }
+            else {
+                $("#title").html(subparent + "<small>" + item + "</small>");
+                $(".breadcrumb").append("<li>" + subparent + "</li>");
+            }
+        }
+    }
+
+    // To make Pace works on Ajax calls
+    $(document).ajaxStart(function () {
+        Pace.restart();
+    });
+    /*function index() {
+     $('#title').empty();
+     $('.content').load('guidance.html');
+     }*/
+    /*
+     * 替换当前url 并不导致浏览器页面刷新
+     * name 参数名
+     * value 参数值
+     */
+    /*function replaceUrl  (name, value) {
+     var obj = new Object();
+     obj[name] = value;
+     obj.rand = Math.random();
+     History.replaceState(obj, '', '/#content');
+     }*/
+</script>
+</body>
+</html>

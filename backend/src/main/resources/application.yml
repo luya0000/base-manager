@@ -1,0 +1,25 @@
+spring:
+  profiles:
+    active: ${PROFILE:dev}
+  aop:
+    auto: true
+    proxy-target-class: true
+mybatis:
+  configuration:
+    #设置下划线映射为驼峰
+    map-underscore-to-camel-case: true
+jwt:
+  auth-path: login
+  expiration: 86400
+  header: Authorization
+  md5-key: randomKey
+  secret: defaultSecret
+  name-key: name
+  roles-key: roles
+rest:
+  auth-open: true #jwt鉴权机制是否开启(true或者false)
+server:
+  servlet:
+    context-path: ${WEBROOT:/}
+  port:
+    8090

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.manage.system.dao.DepartMapper">
+
+    <insert id="insert" parameterType="com.manage.system.model.SysDepartDto" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_depart
+        (name, menu_id,code, note, update_user, update_time)
+        values
+        (#{name,jdbcType=VARCHAR},#{menuId,jdbcType=VARCHAR},#{code,jdbcType=VARCHAR},#{note,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, now())
+    </insert>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from sys_depart where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <update id="updateByPrimaryKey" parameterType="com.manage.system.model.SysDepartDto">
+        UPDATE sys_depart
+        <set>
+            update_time = now()
+            <if test="name != null and name != ''">,name = #{name,jdbcType=VARCHAR}</if>
+            <if test="note != null and note != ''">,note = #{note,jdbcType=VARCHAR}</if>
+            <if test="updateUser != null and updateUser != ''">,update_user = #{updateUser,jdbcType=VARCHAR}</if>
+        </set>
+        WHERE id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="selectAll" resultType="com.manage.system.model.SysDepartDto">
+        select id, code,menu_id, name, note, update_user as updateUser, update_time as updateTime
+        from sys_depart
+        <where>
+            <if test="id != null">id = #{id,jdbcType=INTEGER}</if>
+            <if test="name != null and name != ''">AND name LIKE #{name,jdbcType=VARCHAR}</if>
+        </where>
+    </select>
+    <!-- 角色数组获取部门信息 -->
+    <select id="selectDepartByRoles" resultType="com.manage.system.model.SysDepartDto" parameterType="java.util.List">
+        select DISTINCT sd.id ,sd.code,sd.menu_id, sd.name, sd.note, sd.update_user as updateUser, sd.update_time as updateTime
+        from sys_role sr, sys_depart sd
+        where sr.depart_id = sd.id
+        <if test="roleIds != null and roleIds.size() > 0">
+            and sr.id in
+            <foreach collection="roleIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectByPrimaryKey" resultType="com.manage.system.model.SysDepartDto">
+        select id,code,menu_id, name, note, update_user as updateUser, update_time as updateTime
+        from sys_depart
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="getDepartByMenuId" resultType="com.manage.system.model.SysDepartDto">
+        select id,code,menu_id, name, note, update_user as updateUser, update_time as updateTime
+        from sys_depart
+        where menu_id = #{menuId,jdbcType=INTEGER}
+    </select>
+</mapper>

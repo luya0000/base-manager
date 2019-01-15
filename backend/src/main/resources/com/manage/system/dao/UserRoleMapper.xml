@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.manage.system.dao.UserRoleMapper">
+
+    <insert id="insert" parameterType="com.manage.system.model.SysUserRoleDto" >
+      insert into sys_user_role
+        (user_id, role_id)
+	  values
+	    (#{userId,jdbcType=VARCHAR},#{roleId,jdbcType=INTEGER})
+    </insert>
+
+    <delete id="deleteByParam">
+        DELETE FROM sys_user_role
+        <where>
+            role_id != 1
+            <if test="userId != null and userId != ''">AND user_id = #{userId,jdbcType=VARCHAR}</if>
+            <if test="roleId != null">AND role_id = #{roleId,jdbcType=INTEGER}</if>
+        </where>
+    </delete>
+
+    <update id="updateByPrimaryKey" parameterType="com.manage.system.model.SysRoleDto">
+        UPDATE sys_user
+        <set>
+            update_time = now()
+            <if test="name != null and name != ''">,name = #{name,jdbcType=VARCHAR}</if>
+            <if test="note != null and note != ''">,note = #{note,jdbcType=VARCHAR}</if>
+            <if test="updateUser != null and updateUser != ''">,update_user = #{updateUser,jdbcType=VARCHAR}</if>
+            update_time = now()
+        </set>
+        WHERE id = #{id,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectByParam" resultType="com.manage.system.model.SysRoleDto">
+        SELECT
+        sr.id as id,
+        sr.name as name,
+        sr.note,
+        sr.update_user as updateUser,
+        sr.update_time as updateTime
+        FROM sys_user su,sys_role sr, sys_user_role sur
+        <where>
+            su.user_id = sur.user_id
+            AND sur.role_id = sr.id
+            <if test="userId != null and userId != ''">AND su.user_id = #{userId,jdbcType=VARCHAR}</if>
+            <if test="roleId != null">AND sr.id = #{roleId,jdbcType=INTEGER}</if>
+        </where>
+    </select>
+
+</mapper>

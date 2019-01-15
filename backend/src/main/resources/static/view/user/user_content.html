@@ -1,0 +1,507 @@
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <!-- /.box-header -->
+            <div class="box-header">
+                <div>
+                    <div class="col-sm-3">
+                        <input id="user_id" type="text" class="form-control" placeholder="帐号"/>
+                    </div>
+                    <button class="btn btn-primary" id="queryUserTable" onclick="queryUserTable();">查询</button>
+                    <a href="javascript:void(0);" class="btn btn-primary " data-toggle="modal"
+                       onclick="showAddUserModel();" data-target="#userModal">新增用户</a>
+                </div>
+            </div>
+            <div class="box-body">
+                <table id="user_table" class="table table-bordered table-hover"
+                       style="font-size: 12px;" width="100%">
+                    <thead>
+                    <tr>
+                        <th>账号</th>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>电话</th>
+                        <th>状态</th>
+                        <th>备注</th>
+                        <th>授权</th>
+                        <th>编辑</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div id="page" class="page" style="float: right;"></div>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+    </div>
+    <!-- /.col -->
+</div>
+<!-- /.row -->
+<!--人员列表-->
+<script type="text/template" id="user_table_content">
+    <tbody>
+    {@each data as item ,index}
+    <tr>
+        <td style="vertical-align:middle">@{item.userId}</td>    <!--账号-->
+        <td style="vertical-align:middle">@{item.userName}</td>  <!--姓名-->
+        {@if item.sex == 1}                                        <!--状态-->
+        <td style="vertical-align:middle">男</td>
+        {@else}
+        <td style="vertical-align:middle">女</td>
+        {@/if}
+        <td style="vertical-align:middle">@{item.phone}</td>      <!--电话-->
+        {@if item.status == 1}                                      <!--状态-->
+        <td style="vertical-align:middle">启用</td>
+        {@else}
+        <td style="vertical-align:middle">停用</td>
+        {@/if}
+        {@if item.note != null}
+        <td style="vertical-align:middle">@{item.note}</td>       <!--备注-->
+        {@else}
+        <td style="vertical-align:middle"></td>
+        {@/if}
+        <td style="vertical-align:middle">                         <!--部门　角色授权-->
+            {@if item.userId != 'admin'}
+            <a href="javascript:void(0);" class="user_role_edit" title="角色赋予" data-toggle="modal"
+               data-target="#userRoleModel" data-con-id="@{item.userId}"> 角色赋予</a>
+            {@/if}
+        </td>
+        <td style="vertical-align:middle">
+            {@if item.userId != 'admin'}
+            <a href="javascript:void(0);" class="user_del" title="删除用户信息"
+               data-con-id="@{item.userId}">删除</a>
+            {@/if}
+            <a href="javascript:void(0);" class="user_edit" data-toggle="modal"
+               data-target="#userModal" data-con-id="@{item.userId}">编辑</a>
+        </td>
+    </tr>
+    {@/each}
+    </tbody>
+
+</script>
+
+
+<!-- 新增/编辑用户Modal -->
+<div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalTitle">新增用户</h4>
+            </div>
+            <div class="modal-body">
+                <!-- form start -->
+                <form class="form-horizontal" id="userForm">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label for="userId" class="col-sm-4 control-label">帐号</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control validate" id="userId" name="userId"
+                                       placeholder="帐号（半角英文数字）">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="userName" class="col-sm-4 control-label">姓名</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control validate" id="userName" name="userName"
+                                       placeholder="姓名">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="sex" class="col-sm-4 control-label">性别</label>
+                            <div class="col-sm-7">
+                                <select class="form-control select2" id="sex">
+                                    <option selected="selected" value="1">男</option>
+                                    <option value="0">女</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" class="col-sm-4 control-label">电话</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control validate" id="phone" name="phone"
+                                       datatype="number" placeholder="电话">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="col-sm-4 control-label">密码</label>
+                            <div class="col-sm-7">
+                                <input type="password" class="form-control validate" id="password" name="password"
+                                       placeholder="密码">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="col-sm-4 control-label">邮箱</label>
+                            <div class="col-sm-7">
+                                <input type="email" class="form-control validate" id="email" name="email"
+                                       placeholder="邮箱">
+                            </div>
+                        </div>
+                        <!--<div class="form-group">
+                            <label for="userType" class="col-sm-4 control-label">角色</label>
+                            <div class="col-sm-7">
+                                <label>
+                                    <input type="checkbox" name="userType" id="userType" value="0">
+                                    管理员
+                                </label>
+                            </div>
+                        </div>-->
+                        <div class="form-group row">
+                            <label for="status" class="col-sm-4 control-label">状态</label>
+                            <div class="col-sm-7">
+                                <select class="form-control select2" id="status">
+                                    <option selected="selected" value="1">启用</option>
+                                    <option value="0">停用</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="note" class="col-sm-4 control-label">备注</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="note" name="note" placeholder="备注信息">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.box-body -->
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    关<span style="padding-left: 12px"/>闭
+                </button>
+                <button type="button" class="btn btn-primary" id="editUser" onclick="editUser();">
+                    修<span style="padding-left: 12px"/>改
+                </button>
+                <button type="button" class="btn btn-primary" id="addUser" onclick="addUser();">
+                    保<span style="padding-left: 12px"/>存
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--角色赋予　model-->
+<div class="modal fade" id="userRoleModel" tabindex="-1" role="dialog" aria-labelledby="myRoleModelLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myRoleModelTitle">角色赋予</h4>
+            </div>
+            <div class="modal-body">
+                <!-- form start -->
+                <form class="form-horizontal" id="userRoleForm">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <input type="hidden" id="role_userId"/>
+                            <label for="userId" class="col-sm-4 control-label">选择角色：</label>
+                            <div class="col-sm-7">
+                                <div id="role_tree">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.box-body -->
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    关<span style="padding-left: 12px"/>闭
+                </button>
+                <button type="button" class="btn btn-primary" id="addUserRole" onclick="editRolePart();">
+                    保<span style="padding-left: 12px"/>存
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--角色赋予列表-->
+<script type="text/template" id="user_role_content">
+    <div class="tree">
+        <ul>
+            {@each data as item ,index}
+            <li>
+                <div class="close_menu"><span></span>
+                    <label onmouseover="this.style.cursor='pointer'">@{item.departName}</label>
+                </div>
+                <ul style="display: none;">
+                    {@each item.roleBeanList as role}
+                    <li><input type="checkbox" id="@{role.id}" name="depart_role" data-value="@{role.id}">
+                        <label for="@{role.id}">@{role.name}</label></li>
+                    {@/each}
+                </ul>
+            </li>
+            {@/each}
+        </ul>
+    </div>
+</script>
+
+
+<script type="text/javascript" src="../plugins/tree/js/treescroll.min.js"></script>
+<link rel="stylesheet" href="../plugins/tree/css/tree.css">
+<script src="../plugins/js/common.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        // 初始化表格数据
+        dataShowPage($("#page"), "/sys/user/list", "GET", "", showTableData, startPage);
+        // 用户编辑modl打开处理
+        $("#user_table").delegate('.user_edit', "click", function () {
+            myAjax("GET", true, "/sys/user/" + $(this).attr("data-con-id"), null, showEditUserModel);
+        });
+
+        // 删除用户
+        $("#user_table").delegate('.user_del', "click", function () {
+            var userId = $(this).attr("data-con-id");
+            var index = layer.confirm('删除用户不可恢复，确认删除？', {
+                btn: ['删除', '取消'] //按钮
+            }, function () {
+                myAjax("POST", true, "/sys/user/delete/" + userId, null, function (result) {
+                    if (result.code === 200) {
+                        layer.msg('删除成功.');
+                    } else {
+                        layer.msg(result.message);
+                    }
+                    layer.close(index);
+                    queryUserTable();
+                });
+            })
+        });
+
+        // 赋予角色
+        $("#user_table").delegate('.user_role_edit', "click", function () {
+            var userId = $(this).attr("data-con-id");
+            $("#role_userId").val(userId);
+            myAjax("GET", true, "/sys/userrole/list", null, function (result) {
+                if (result.code === 200) {
+                    var tableContent = juicer($("#user_role_content").text(), result.content);
+                    $('#role_tree').find("li").remove();
+                    $('#role_tree').append(tableContent);
+
+                    myAjax("GET", true, "/sys/userrole/user", {"userId": userId}, showEditRole);
+                } else {
+                    alert(result.message);
+                }
+            });
+        });
+
+    });
+
+    /**
+     * 查询租户数据
+     */
+    function queryUserTable() {
+        var queryParms = {
+            account: $('#user_id').val(),
+            depart: "",
+        };
+        dataShowPage($("#page"), "/sys/user/list", "GET", queryParms, showTableData);
+    }
+
+    /**
+     * 处理表格数据呈现
+     * @param result
+     */
+    function showTableData(result) {
+        if (result.code === 200) {
+            var tableContent = juicer($("#user_table_content").text(), result.content);
+            $('#user_table').find('td').remove();
+            $('#user_table').append(tableContent);
+        } else {
+            alert(result.message);
+        }
+    }
+
+    /*用户添加modl打开处理*/
+    function showAddUserModel(form) {
+        $("#myModalTitle").text("添加用户");
+        $("#userForm").find("input[id='userId']").attr("readonly", false);
+        $("#userForm").find("input[id='userId']").val("");
+        $("#userForm").find("input[id='userName']").val("");
+        $("#userForm").find("input[id='password']").val("");
+        $("#userForm").find("input[id='password']").attr("action-type", 'add');
+        $("#userForm").find("input[id='password']").attr("placeholder", '密码');
+        $("#userForm").find("input[id='phone']").val("");
+        $("#userForm").find("input[id='email']").val("");
+        $("#userForm").find("input[id='note']").val("");
+        $("#userForm").find('.formtips').remove().end();
+        $("#userForm").find('.has-error').removeClass("has-error");
+        $("#userForm").find('.has-success').removeClass("has-success");
+        // 设置按钮显示
+        $('#editUser').hide();
+        $('#addUser').show();
+    }
+
+    /*用户编辑modl打开处理*/
+    function showEditUserModel(result, status) {
+        $("#myModalTitle").text("编辑用户");
+        // 用户信息赋值
+        $("#userForm").find("input[id='userId']").attr("readonly", true);
+        $("#userForm").find("input[id='password']").attr("action-type", 'update');
+        $("#userForm").find("input[id='password']").val("");
+        $("#userForm").find("input[id='password']").attr("placeholder", '不更新密码无需填写');
+        $("#userForm").find("input[id='userId']").val(result.content.userId);
+        $("#userForm").find("input[id='userName']").val(result.content.userName);
+        $("#userForm").find("input[id='phone']").val(result.content.phone);
+        $("#userForm").find("input[id='email']").val(result.content.email);
+        $("#userForm").find("input[id='note']").val(result.content.note);
+        $("#userForm").find("[id='status']").val(result.content.status);
+        $("#userForm").find("[id='sex']").val(result.content.sex);
+        // 显示修改按钮
+        $('#editUser').show();
+        $('#addUser').hide();
+    }
+
+    /***
+     * 添加用户
+     */
+    function addUser() {
+        var userId = $("#userForm").find("input[id='userId']").val();
+        var userForm = $("#userForm").serialize();
+        if (!checkInput($("#userForm"))) {
+            return;
+        }
+        var params = {
+            "userId": userId,
+            "userName": $("#userForm").find("[id='userName']").val(),
+            "password": $("#userForm").find("[id='password']").val(),
+            "sex": $("#userForm").find("[id='sex']").val(),
+            "phone": $("#userForm").find("[id='phone']").val(),
+            "status": $("#userForm").find("[id='status']").val(),
+            "email": $("#userForm").find("[id='email']").val(),
+            "note": $("#userForm").find("[id='note']").val()
+        }
+        myAjax("POST", true, "/sys/user/add", params, function (result) {
+            if (result.code === 200) {
+                layer.msg('添加成功.');
+            } else {
+                layer.msg(result.message);
+            }
+            $("#userModal").modal('hide');
+            queryUserTable();
+        });
+    }
+
+    /***
+     * 编辑用户
+     */
+    function editUser() {
+        var userId = $("#userForm").find("input[id='userId']").val();
+        var userForm = $("#userForm").serialize();
+        if (!checkInput($("#userForm"))) {
+            return;
+        }
+        var params = {
+            "userId": userId,
+            "userName": $("#userForm").find("[id='userName']").val(),
+            "password": $("#userForm").find("[id='password']").val(),
+            "sex": $("#userForm").find("[id='sex']").val(),
+            "phone": $("#userForm").find("[id='phone']").val(),
+            "status": $("#userForm").find("[id='status']").val(),
+            "email": $("#userForm").find("[id='email']").val(),
+            "note": $("#userForm").find("[id='note']").val()
+        }
+        myAjax("POST", true, "/sys/user/update", params, function (result) {
+            if (result.code === 200) {
+                layer.msg('修改成功.');
+            } else {
+                layer.msg(result.message);
+            }
+            $("#userModal").modal('hide');
+            queryUserTable();
+        });
+    }
+
+    /** 添加或编辑时的表单验证 */
+    function checkInput(form) {
+        var ret = true;
+        //校验所有带有validate的class
+        $(form).find(".validate").each(function () {
+            if (ret) {
+                ret = setFormTips(this);
+            }
+        });
+        return ret;
+    }
+    /** 表单验证提示效果 */
+    function setFormTips(field) {
+        $(field).parent().find('.formtips').remove().end();
+        var v = $(field).val();
+        // 返回结果
+        var result = true;
+        if ($(field).attr("datatype") == 'nubmer' && (v % 1 != 0 || isNaN(v))) {
+            $(field).closest('.form-group').addClass('has-error');
+            $(field).parent().append('<span class="formtips" style="color:#dd4b39">必须为整数!</span>');
+            result = false;
+        } else if (v === '' && !($(field).attr("action-type") == 'update')) {
+            $(field).closest('.form-group').addClass('has-error');
+            $(field).parent().append('<span class="formtips" style="color:#dd4b39">不能为空!</span>');
+            result = false;
+        } else if ($(field).attr("id") == 'userId' && !matchEngNum.test(v)) {
+            $(field).closest('.form-group').addClass('has-error');
+            $(field).parent().append('<span class="formtips" style="color:#dd4b39">格式不正确!(只能为英文或数字或英文数字组合)</span>');
+            result = false;
+        } else if ($(field).attr("id") == 'password' && v != '' && !match6to16.test(v)) {
+            $(field).closest('.form-group').addClass('has-error');
+            $(field).parent().append('<span class="formtips" style="color:#dd4b39">密码格式不正确!(只能为英文或数字组合，6-16位)</span>');
+            result = false;
+        } else if ($(field).attr("id") == 'email' && v != '' && !matchemail.test(v)) {
+            $(field).closest('.form-group').addClass('has-error');
+            $(field).parent().append('<span class="formtips" style="color:#dd4b39">邮箱格式不正确!</span>');
+            result = false;
+        } else {
+            $(field).closest('.form-group').removeClass('has-error');
+//            $(field).closest('.form-group').removeClass('has-error').addClass('has-SUCCESS');
+        }
+        return result;
+    }
+
+    /*授权model页面打开操作*/
+    function showEditRole(result) {
+        $('input[name="depart_role"]').removeProp("checked");
+        $('input[name="depart_role"]').each(function () {
+            var that = this;
+            /*$(this).prop("checked", false);
+             $(this).removeProp("checked");*/
+            $.each(result.content, function (i, pro) {
+                if ($(that).attr("data-value") == pro) {
+                    $(that).prop("checked", true);
+                }
+            });
+        });
+
+    }
+    // 编辑用户角色权限操作
+    function editRolePart() {
+
+        var role_array = new Array();
+        $('input[name="depart_role"]:checked').each(function () {
+            //向数组中添加元素
+            role_array.push($(this).attr("data-value"));
+        });
+        //将数组元素连接起来以构建一个字符串
+        var idstr = role_array.join(',');
+
+        var params = {
+            "userId": $("#role_userId").val(),
+            "roleIds": idstr
+        }
+        myAjax("POST", true, "/sys/userrole/add", params, function (result) {
+            if (result.code === 200) {
+                layer.msg('设置成功.');
+            } else {
+                layer.msg(result.message);
+            }
+            $("#userRoleModel").modal('hide');
+        });
+
+    }
+
+</script>
