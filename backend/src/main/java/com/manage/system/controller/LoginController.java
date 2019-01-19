@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 public class LoginController extends BaseController {
 
     private Log logger = LogFactory.getLog(LoginController.class);
+    private Log bizLogger = LogFactory.getLog("bizLogger");
 
     public static final String LOGIN_HTML = "index.html";
 
@@ -44,6 +45,7 @@ public class LoginController extends BaseController {
 
     @PostMapping(value = "/signout")
     public ModelAndView logout() {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 退出登陆"));
         return new ModelAndView(LOGIN_HTML);
     }
 
@@ -53,6 +55,7 @@ public class LoginController extends BaseController {
     public APIResponse login(
             @RequestParam("account") String account,
             @RequestParam("password") String password) {
+        bizLogger.info(new StringBuilder().append("账号：").append(account).append(" 登陆系统"));
 
         final String randomKey = jwtTokenUtil.getRandomKey();
         //获取用户和对应的角色

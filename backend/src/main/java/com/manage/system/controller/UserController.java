@@ -34,7 +34,8 @@ import java.util.Map;
 @RequestMapping(value = UrlConstants.URL_USER_MODEL)
 public class UserController extends BaseController {
 
-    Log logger = LogFactory.getLog(UserController.class);
+    private Log logger = LogFactory.getLog(UserController.class);
+    private Log bizLogger = LogFactory.getLog("bizLogger");
 
     @Autowired
     private UserService userService;
@@ -58,6 +59,7 @@ public class UserController extends BaseController {
                                 @RequestParam(value = "account", required = false) String account,
                                 @RequestParam(value = "depart", required = false) String depart) {
 
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append("　查询用户列表."));
         currPage = currPage == null ? Constants.PAGEHELPER_PAGE_CURRENT : currPage;
         pageSize = pageSize == null ? Constants.PAGEHELPER_PAGE_SIZE : pageSize;
 
@@ -98,6 +100,7 @@ public class UserController extends BaseController {
     @GetMapping("/{userId}")
     public APIResponse getUserByKey(@PathVariable("userId") String userId) {
 
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append("　根据主键获取用户ID.").append(userId));
         try {
             if (StringUtils.isEmpty(userId)) {
                 userId = getAccount();
@@ -148,6 +151,7 @@ public class UserController extends BaseController {
         userBean.setNote(note);
         userBean.setStatus(status);
         userBean.setUpdateUser(getUserName());
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append("　添加用户信息：").append(userName));
         try {
             userService.insertUser(userBean);
         } catch (Exception e) {
@@ -191,6 +195,7 @@ public class UserController extends BaseController {
         userBean.setEmail(email);
         userBean.setNote(note);
         userBean.setPassword(password);
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append("　更新用户信息：").append(userName));
 
         try {
             userService.updateUser(userBean);
@@ -212,6 +217,7 @@ public class UserController extends BaseController {
     @PostMapping("/delete/{userId}")
     public APIResponse deleteUser(@PathVariable(value = "userId") String userId) {
 
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append("　删除用户信息：").append(userId));
         try {
             userService.deleteUser(userId);
         } catch (Exception e) {
@@ -238,6 +244,7 @@ public class UserController extends BaseController {
             @RequestParam("newPass") String newPass,
             @RequestParam("confPass") String confPass) {
 
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append("　修改用户密码").append(userId));
         try {
             // 两次密码一致
             if (!newPass.equals(confPass)) {

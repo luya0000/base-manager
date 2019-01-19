@@ -12,6 +12,7 @@ import com.manage.system.bean.DepartBean;
 import com.manage.system.model.SysPermissionDto;
 import com.manage.system.service.DepartService;
 import com.manage.system.service.RolePermService;
+import com.manage.util.file.FileUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ import java.util.List;
 @RequestMapping(value = UrlConstants.URL_FILE_MODEL)
 public class FileController extends BaseController {
     private Log logger = LogFactory.getLog(FileController.class);
+    private Log bizLogger = LogFactory.getLog("bizLogger");
     // 系统文件根目录
     @Value("${file.fileRootPath}")
     private String fileRootPath;
@@ -88,6 +90,7 @@ public class FileController extends BaseController {
 
     @RequestMapping(value = "/fileList")
     public APIResponse fileList(@RequestParam("menuId") Integer menuId, @RequestParam("path") String path) {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append("　　查询文件列表.路径:").append(path));
 
         // 如果是根目录不进行操作
         if (fileRootPath.contains(path)) {
@@ -142,6 +145,7 @@ public class FileController extends BaseController {
         String filename = request.getParameter("name");
         String path = request.getParameter("path");
         String menuIdStr = request.getParameter("menuId");
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 上传文件路径:").append(path).append("文件名:").append(filename));
         Integer menuId = 0;
         //  转换menuid
         try {
@@ -177,6 +181,8 @@ public class FileController extends BaseController {
     @RequestMapping("/download")
     public APIResponse downloadFile(HttpServletResponse response, HttpServletRequest request,
                                     String paths, Integer menuId) {
+
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 下载文件:").append(paths));
 
         // 获取角色对应部门权限
         List<SysPermissionDto> permissionDtoList = getUserPermistion(menuId);
@@ -244,6 +250,8 @@ public class FileController extends BaseController {
 
     @RequestMapping(value = "/delete")
     public APIResponse deleteFile(@RequestParam("paths") String paths, @RequestParam("menuId") Integer menuId) {
+
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 删除文件:").append(paths));
         // 空文件删除
         if (StringUtils.isEmpty(paths)) {
             return APIResponse.toOkResponse();
@@ -274,6 +282,7 @@ public class FileController extends BaseController {
     @RequestMapping(value = "/newdir")
     public APIResponse newFolder(@RequestParam("path") String path, @RequestParam("dir") String dir,
                                  @RequestParam("menuId") Integer menuId) {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 创建文件夹:").append(path).append(File.separator).append(dir));
         try {
             // 获取上传权限
             List<SysPermissionDto> permissionDtoList = getUserPermistion(menuId);

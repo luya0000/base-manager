@@ -32,6 +32,7 @@ import java.util.Map;
 public class RoleController extends BaseController {
 
     private Log logger = LogFactory.getLog(RoleController.class);
+    private Log bizLogger = LogFactory.getLog("bizLogger");
 
     @Autowired
     private RoleService roleService;
@@ -51,6 +52,8 @@ public class RoleController extends BaseController {
                                 @RequestParam(value = "pageSize", required = false) Integer pageSize,
                                 @RequestParam(value = "roleName", required = false) String roleName,
                                 @RequestParam(value = "departId", required = false) Integer departId) {
+
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 查询角色列表"));
 
         currPage = currPage == null ? Constants.PAGEHELPER_PAGE_CURRENT : currPage;
         pageSize = pageSize == null ? Constants.PAGEHELPER_PAGE_SIZE : pageSize;
@@ -93,6 +96,7 @@ public class RoleController extends BaseController {
      */
     @GetMapping("/{id}")
     public APIResponse roleInfo(@PathVariable("id") Integer roleId) {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 查询角色ID:").append(roleId));
 
         try {
             RoleBean role = roleService.selectByPrimaryKey(roleId);
@@ -116,6 +120,8 @@ public class RoleController extends BaseController {
     @PostMapping("/add")
     public APIResponse addRole(@RequestParam("roleName") String roleName, @RequestParam("departId") Integer departId,
                                @RequestParam("note") String note, @RequestParam("permistion") String permistion) {
+
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 添加角色名称:").append(roleName));
 
         RoleBean roleBean = new RoleBean();
         roleBean.setName(roleName);
@@ -145,6 +151,7 @@ public class RoleController extends BaseController {
     @PostMapping("/update")
     public APIResponse updateRole(@RequestParam(value = "id") Integer id, @RequestParam("roleName") String roleName,
                                   @RequestParam("note") String note, @RequestParam("permistion") String permistion) {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 更新角色名称:").append(roleName));
 
         RoleBean roleBean = new RoleBean();
         roleBean.setId(id);
@@ -169,6 +176,7 @@ public class RoleController extends BaseController {
      */
     @PostMapping("/delete/{id}")
     public APIResponse deleteRole(@PathVariable(value = "id") Integer id) {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 删除角色ID:").append(id));
 
         try {
             roleService.deleteByPrimaryKey(id);

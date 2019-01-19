@@ -34,6 +34,7 @@ import java.util.Set;
 public class UserRoleController extends BaseController {
 
     private Log logger = LogFactory.getLog(UserRoleController.class);
+    private Log bizLogger = LogFactory.getLog("bizLogger");
 
     @Autowired
     private RoleService roleService;
@@ -51,6 +52,8 @@ public class UserRoleController extends BaseController {
      */
     @GetMapping("/list")
     public APIResponse roleListByDepart() {
+
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 查询用户角色列表."));
 
         try {
             // 会获取当前角色对应部门的所有人
@@ -94,6 +97,8 @@ public class UserRoleController extends BaseController {
     @GetMapping("/user")
     public APIResponse roleListByUser(@RequestParam(value = "userId", required = false) String userId) {
 
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 根据用户ID查询用户信息.ID:").append(userId));
+
         try {
             List<Integer> roleIdList = userRoleService.getRolesIdByParam(userId, null);
             return APIResponse.toOkResponse(roleIdList);
@@ -114,6 +119,7 @@ public class UserRoleController extends BaseController {
     @PostMapping("/add")
     public APIResponse addRole(@RequestParam("userId") String userId,
                                @RequestParam(value = "roleIds", required = false) String roleIds) {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 添加用户").append(userId).append("角色ID:").append(roleIds));
         try {
             // 删除关系
             userRoleService.delUserRoleByUserId(userId, null);

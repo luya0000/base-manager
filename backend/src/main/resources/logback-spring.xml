@@ -3,7 +3,6 @@
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
     <springProfile name="dev">
-
         <logger name="jdbc.sqltiming" level="INFO" />
         <logger name="jdbc.sqlOnly" level="INFO" />
         <logger name="com.manage" level="DEBUG"/>
@@ -14,20 +13,36 @@
         </root>
     </springProfile>
 
-    <springProfile name="deploy">
+    <springProfile name="dev">
         <appender name="dailyRollingFileAppender"
                   class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <File>./logs/doc-manager/backend.log</File>
+            <File>./logs/console.log</File>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
                 <!-- daily rollover -->
-                <FileNamePattern>./logs/doc-manager/backend.%d{yyyy-MM-dd}.%i.log
-                </FileNamePattern>
+                <FileNamePattern>./logs/console.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
                 <!-- keep 30 days' worth of history -->
-                <maxHistory>30</maxHistory>
+                <maxHistory>120</maxHistory>
                 <timeBasedFileNamingAndTriggeringPolicy
                         class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                     <!-- or whenever the file size reaches 100MB -->
-                    <maxFileSize>1MB</maxFileSize>
+                    <maxFileSize>512MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+            </rollingPolicy>
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} %-5level[%thread]%logger{80}.%method:%L -%msg%n</Pattern>
+            </layout>
+        </appender>
+        <appender name="bizAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <File>./logs/biz.log</File>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- daily rollover -->
+                <FileNamePattern>./logs/biz.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+                <!-- keep 30 days' worth of history -->
+                <maxHistory>120</maxHistory>
+                <timeBasedFileNamingAndTriggeringPolicy
+                        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <!-- or whenever the file size reaches 100MB -->
+                    <maxFileSize>512MB</maxFileSize>
                 </timeBasedFileNamingAndTriggeringPolicy>
             </rollingPolicy>
             <layout class="ch.qos.logback.classic.PatternLayout">
@@ -35,8 +50,13 @@
             </layout>
         </appender>
 
-        <root level="WARN">
-            <appender-ref ref="dailyRollingFileAppender" />
+        <!--使用LoggerFactory.getLogger("performanceLogger") 使用这个logger-->
+        <logger name="bizLogger" additivity="false">
+            <!--使用哪一个Appender-->
+            <appender-ref ref="bizAppender" />
+        </logger>
+        <root level="INFO">
+            <appender-ref ref="dailyRollingFileAppender"/>
         </root>
     </springProfile>
 

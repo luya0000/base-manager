@@ -29,6 +29,7 @@ import java.util.Map;
 public class DepartController extends BaseController {
 
     private Log logger = LogFactory.getLog(DepartController.class);
+    private Log bizLogger = LogFactory.getLog("bizLogger");
 
     @Autowired
     private DepartService departService;
@@ -50,6 +51,7 @@ public class DepartController extends BaseController {
 
         currPage = currPage == null ? Constants.PAGEHELPER_PAGE_CURRENT : currPage;
         pageSize = pageSize == null ? Constants.PAGEHELPER_PAGE_SIZE : pageSize;
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append("　　查询部门列表"));
 
         List<DepartBean> departBeanList = null;
         try {
@@ -69,6 +71,7 @@ public class DepartController extends BaseController {
 
     @GetMapping("/listByRole")
     public APIResponse departListByRole() {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append("　　根据角色查询部门列表"));
         List<Integer> roles = super.getRoles();
         List<DepartBean> departBeanList = null;
         Map result = new HashedMap();
@@ -96,6 +99,7 @@ public class DepartController extends BaseController {
      */
     @GetMapping("/{id}")
     public APIResponse departInfo(@PathVariable("id") Integer depart) {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 根据部门ID查询部门信息:").append(depart));
 
         try {
             DepartBean role = departService.selectPrimaryKey(depart);
@@ -119,6 +123,7 @@ public class DepartController extends BaseController {
     public APIResponse addDepart(@RequestParam("departCode") String code,
                                  @RequestParam("departName") String name,
                                  @RequestParam("note") String note) {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 添加部门信息.编码:").append(code).append(" 名称:").append(name));
 
         DepartBean departBean = new DepartBean();
         departBean.setCode(code);
@@ -153,6 +158,7 @@ public class DepartController extends BaseController {
     public APIResponse updateRole(@RequestParam(value = "id") Integer id,
                                   @RequestParam("name") String name,
                                   @RequestParam("type") String type) {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 修改部门信息.").append(" 名称:").append(name));
 
         DepartBean departBean = new DepartBean();
         departBean.setId(id);
@@ -177,6 +183,7 @@ public class DepartController extends BaseController {
      */
     @PostMapping("/delete/{id}")
     public APIResponse deleteDepart(@PathVariable(value = "id") Integer id) {
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 部门部门信息.部门ID").append(id));
 
         try {
             departService.deleteByPrimaryKey(id);

@@ -1,8 +1,5 @@
 package com.manage.system.controller;
 
-import javax.servlet.http.HttpServletRequest;
-
-import com.github.pagehelper.util.StringUtil;
 import com.manage.common.APIResponse;
 import com.manage.common.BaseController;
 import com.manage.common.Constants;
@@ -10,10 +7,8 @@ import com.manage.common.UrlConstants;
 import com.manage.exception.impl.BizExceptionStatusEnum;
 import com.manage.system.bean.DepartBean;
 import com.manage.system.bean.Menu;
-import com.manage.system.model.SysMenuDto;
 import com.manage.system.service.DepartService;
 import com.manage.system.service.MenuService;
-import com.manage.system.service.RoleMenuService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
