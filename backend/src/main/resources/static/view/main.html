@@ -35,11 +35,12 @@
             <input id="menuIdHidden" type="hidden" value="">
             <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button"></a>
             <!--文件查询-->
-            <!--<form class="navbar-form navbar-left" role="search">
+            <form class="navbar-form navbar-left" role="search">
                 <div class="form-group">
-                    <input type="text" class="form-control" id="navbar-search-input" placeholder="Search">
+                    <input id="searchFileName" type="text" class="form-control" id="navbar-search-input"
+                           placeholder="file name">
                 </div>
-            </form>-->
+            </form>
             <!--末端设置-->
             <div class="navbar-custom-menu">
                 <ul class="nav navbar-nav">
@@ -184,6 +185,7 @@
         //获取用户数据
         myAjax("GET", true, "/loginUser", null, getLoginInfo);
     });
+
     // 设置登陆的用户信息
     function getLoginInfo(result, status) {
         if (result.code == 200) {
@@ -256,28 +258,28 @@
         }
         return result;
     }
-    function setTitle(link) {
-        if ($(link).attr("data") !== '') {
-            var parent = $(link).closest("ul").parent().find('span').first().text();
-            var subparent = '';
-            var item = $(link).text();
+    /*function setTitle(link) {
+     if ($(link).attr("data") !== '') {
+     var parent = $(link).closest("ul").parent().find('span').first().text();
+     var subparent = '';
+     var item = $(link).text();
 
-            if (parent === '') {
-                subparent = $(link).closest("ul").parent().find('a').first().text();
-                parent = $(link).closest(".treeview").find("span").text();
-            }
+     if (parent === '') {
+     subparent = $(link).closest("ul").parent().find('a').first().text();
+     parent = $(link).closest(".treeview").find("span").text();
+     }
 
-            $(".breadcrumb").html("<li><a href='index'><i class='fa fa-dashboard'></i> Home</a></li><li>" + parent + "</li>");
+     $(".breadcrumb").html("<li><a href='index'><i class='fa fa-dashboard'></i> Home</a></li><li>" + parent + "</li>");
 
-            if (subparent === '') {
-                $("#title").html(parent + "<small>" + item + "</small>");
-            }
-            else {
-                $("#title").html(subparent + "<small>" + item + "</small>");
-                $(".breadcrumb").append("<li>" + subparent + "</li>");
-            }
-        }
-    }
+     if (subparent === '') {
+     $("#title").html(parent + "<small>" + item + "</small>");
+     }
+     else {
+     $("#title").html(subparent + "<small>" + item + "</small>");
+     $(".breadcrumb").append("<li>" + subparent + "</li>");
+     }
+     }
+     }*/
 
     // To make Pace works on Ajax calls
     $(document).ajaxStart(function () {

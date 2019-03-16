@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -134,7 +135,7 @@ public class FileController extends BaseController {
     }
 
     /**
-     * 上传镜像文件
+     * 上传文件
      *
      * @param request
      * @return
@@ -279,6 +280,41 @@ public class FileController extends BaseController {
     public void changeFolder() {
     }
 
+    @RequestMapping(value = "/findByName")
+    public APIResponse searchFileByName(@RequestParam("menuId") Integer menuId,@RequestParam("fileName") String fileName){
+
+        // 获取角色对应部门权限
+        List<SysPermissionDto> permissionDtoList = this.getUserPermistion(menuId);
+        List<FileDetail> reFiles = new LinkedList<>();
+        if (permissionDtoList != null) {
+            // 查看权限
+            boolean searchFlg = false;
+
+            for (SysPermissionDto dto : permissionDtoList) {
+                // 拥有查看权限
+                if (Constants.PERM_TYPE_SELECT.equals(dto.getName())) {
+                    searchFlg = true;
+                    break;
+                }
+            }
+
+            // 获取部门编码
+            DepartBean departBean = departService.getDepartByMenuId(menuId);
+            // 获取文件查询路径
+            String departPath = fileRootPath + File.separator + departBean.getCode();
+            // 获取列表
+            if (searchFlg) {
+                LinkedList fileLinkList = new LinkedList();
+                try {
+                    reFiles = fileService.getFilesByFileDir(fileLinkList, departPath,fileName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return APIResponse.toOkResponse(reFiles);
+    }
+
     @RequestMapping(value = "/newdir")
     public APIResponse newFolder(@RequestParam("path") String path, @RequestParam("dir") String dir,
                                  @RequestParam("menuId") Integer menuId) {
@@ -302,5 +338,8 @@ public class FileController extends BaseController {
             return APIResponse.toExceptionResponse(BizExceptionStatusEnum.FILE_CREATE_ERROR);
         }
     }
+
+
+
 
 }

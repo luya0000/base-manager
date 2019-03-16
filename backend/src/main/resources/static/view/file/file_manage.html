@@ -19,8 +19,10 @@
                         <tr>
                             <th style="width: 10px"><input type="checkbox" id="All"></th>
                             <th>文件名称</th>
+                            <th class="searchFileColum">路径</th>
                             <th>更新日期</th>
                             <th>大小</th>
+                            <th>操作</th>
                         </tr>
                         </tbody>
                     </table>
@@ -69,6 +71,8 @@
 <script>
     // 根目录
     var rootPath;
+    // 文件搜索
+    var searchFileFlg = false;
     $(document).ready(function () {
         // 获取根路径
         var menuId = $('#menuIdHidden').val();
@@ -77,11 +81,32 @@
             $('#menuIdHidden').val(menuId);
         }
         myAjax("get", true, "/sys/file/getBasePath", {"menuId": menuId}, getRootPath);
-        // 文件绑定事件
+        // 文件夹绑定事件
         $('#fileTable').delegate('.c_path', "click", function () {
             var newPath = $("#path").val() + "/" + this.innerText;
             $("#path").val(newPath);
             searchFile(newPath);
+        });
+        // 文件绑定事件
+        $('#fileTable').delegate('.c_file', "click", function () {
+            var filepath =  $(this).closest("tr").find(".filePath").val();
+            var fileName =  this.innerText;
+        });
+        // title页文件查询
+        $("#searchFileName").keydown(function(event){
+            searchFileFlg = false;
+            if(event.keyCode == 13){
+                if($('#searchFileName').val()){
+                    var data = {
+                        "fileName": $('#searchFileName').val(),
+                        "menuId": $('#menuIdHidden').val()
+                    }
+                    searchFileFlg = true;
+                    myAjax("GET", false, "/sys/file/findByName", data, searchFileCallBack);
+                }else{
+                    myAjax("get", true, "/sys/file/getBasePath", {"menuId": menuId}, getRootPath);
+                }
+            }
         });
         //$(".webuploader-pick").remove("class");
     })
@@ -138,11 +163,18 @@
                     '<input type = "hidden" class = "filePath" value="' + item.path + '"/>',
                     '<img src="../resource/img/file/' + item.pic + '" alt=""/>',
                     '<span class="c_' + item.type + '" style="cursor: pointer;">' + item.name + '</span></td>',
+                    '<td class="searchFileColum">' + item.path.replace(rootPath,"") + '</td>',
                     '<td>' + item.date + '</td>',
-                    '<td>' + (item.type == "file" ? (item.size + ' ' + item.unit) : "") + '</td>'
+                    '<td>' + (item.type == "file" ? (item.size + ' ' + item.unit) : "") + '</td>',
+                    '<td>' + (item.type == "file" ? ('<span class="action_mv" />移动</td>') : '') + '</td>'
                 ].join('');
             });
             $('#fileTable').append(tableList);
+            if(searchFileFlg){
+                $('.searchFileColum').show();
+            }else{
+                $('.searchFileColum').hide();
+            }
         }
     }
 
@@ -258,7 +290,6 @@
         });
         download("/sys/file/download", paths, "post");
     });
-
 
     function download(url, data, method) {
         //url and data options required
