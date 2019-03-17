@@ -103,6 +103,11 @@
     </div>
 </div>
 
+<div id="layer-photos-demo" class="layer-photos-demo" style="display:none">
+    <img id="show_image_id" width="70px" height="30px" layer-src="" src="" alt="">
+</div>
+
+
 <link rel="stylesheet" href="../plugins/jstree/themes/default/style.min.css">
 <script src="../plugins/jstree/jstree.js"></script>
 
@@ -133,12 +138,28 @@
             // 格式转换
             var re = new RegExp("\\\\","g");
             var relativePath=filepath.replace(re,"/");
-            relativePath = relativePath.replace("./backend/src/main/resources/static/","../../../");
             // pdf格式预览
-            if(fileUnit.toLowerCase() == ".pdf"){
-                window.open("../../plugins/pdf/web/viewer.html?file="+relativePath,fileName,'height=700, width=1000, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no');
+            relativePath = relativePath.replace("./backend/src/main/resources/static/","../../../");
+            if(fileUnit.toLowerCase() == ".pdf") {
+                window.open("../../plugins/pdf/web/viewer.html?file=" + relativePath, fileName, 'height=700, width=1000, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no');
+            }else if(fileUnit.toLowerCase() == ".png" || fileUnit.toLowerCase() == ".jpg" || fileUnit.toLowerCase() == ".jpeg"|| fileUnit.toLowerCase() == ".gif"){
+                $("#show_image_id").attr("layer-src",relativePath);
+                $("#show_image_id").attr("src",relativePath);
+
+                $("#show_image_id").trigger("click");
             }
         });
+
+        // 图片显示
+        $("#show_image_id").click(function () {
+            layer.ready(function () { //为了layer.ext.js加载完毕再执行
+                layer.photos({
+                    photos: '#layer-photos-demo'
+                    , shift: 5 //0-6的选择，指定弹出图片动画类型，默认随机
+                });
+            });
+        });
+
 
         // 移动操作事件
         $('#fileTable').delegate('.action_mv', "click", function () {
