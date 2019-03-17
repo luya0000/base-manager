@@ -103,10 +103,6 @@
     </div>
 </div>
 
-<div id="layer-photos-demo" class="layer-photos-demo" style="display:none">
-    <img id="show_image_id" width="70px" height="30px" layer-src="" src="" alt="">
-</div>
-
 <link rel="stylesheet" href="../plugins/jstree/themes/default/style.min.css">
 <script src="../plugins/jstree/jstree.js"></script>
 
@@ -142,10 +138,24 @@
                 relativePath = relativePath.replace("./backend/src/main/resources/static/","../../../");
                 window.open("../../plugins/pdf/web/viewer.html?file=" + relativePath, fileName, 'height=700, width=1000, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no');
             }else if(fileUnit.toLowerCase() == ".png" || fileUnit.toLowerCase() == ".jpg" || fileUnit.toLowerCase() == "jpeg"|| fileUnit.toLowerCase() == ".gif"){
-                relativePath = relativePath.replace("./backend/src/main/resources/static/","");
-                $("#show_image_id").attr("layer-src",relativePath);
-                $("#show_image_id").attr("src",relativePath);
-                $("#show_image_id").trigger("click");
+                relativePath = relativePath.replace("./backend/src/main/resources/static/","../../");
+                var imageJson = {
+                    "title": fileName, //相册标题
+                    "start": 0, //初始显示的图片序号，默认0
+                    "data": [   //相册包含的图片，数组格式
+                        {
+                            "alt": fileName,
+                            "src": relativePath, //原图地址
+                            "thumb": relativePath //缩略图地址
+                        }
+                    ]
+                }
+                layer.ready(function () { //为了layer.ext.js加载完毕再执行
+                    layer.photos({
+                        photos: imageJson
+                        , shift: 5 //0-6的选择，指定弹出图片动画类型，默认随机
+                    });
+                });
             }
         });
 
@@ -180,20 +190,6 @@
         });
         //$(".webuploader-pick").remove("class");
     })
-
-    // 图片显示
-    $("#show_image_id").click(function () {
-        showImage();
-    });
-    // 此处分开写是为了 躲避jquery的加载顺序
-    function showImage(){
-        layer.ready(function () { //为了layer.ext.js加载完毕再执行
-            layer.photos({
-                photos: '#layer-photos-demo'
-                , shift: 5 //0-6的选择，指定弹出图片动画类型，默认随机
-            });
-        });
-    }
 
     // 获取根路径
     function getRootPath(result, status) {
@@ -249,7 +245,8 @@
                     '<td class="searchFileColum">' + item.path.replace(rootPath,"") + '</td>',
                     '<td>' + item.date + '</td>',
                     '<td>' + (item.type == "file" ? (item.size + ' ' + item.unit) : "") + '</td>',
-                    '<td>' + (item.type == "file" ? ('<span class="action_mv" style="cursor: pointer;">移动</span>') : '') + '</td>'
+                    '<td>' + (item.type == "file" ? ('<span class="action_mv" style="cursor: pointer;">移动</span>') : '') +
+                    '</td>'
                 ].join('');
             });
             $('#fileTable').append(tableList);
