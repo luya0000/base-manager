@@ -7,6 +7,7 @@ import com.manage.common.UrlConstants;
 import com.manage.exception.impl.BizExceptionStatusEnum;
 import com.manage.exception.impl.SysExceptionStatusEnum;
 import com.manage.source.bean.FileDetail;
+import com.manage.source.bean.MVDirBean;
 import com.manage.source.service.FileService;
 import com.manage.system.bean.DepartBean;
 import com.manage.system.model.SysPermissionDto;
@@ -114,7 +115,7 @@ public class FileController extends BaseController {
             if (searchFlg) {
                 // 获取文件列表
                 File listPath = new File(path);
-                // TODO 如果是文件想办法打开它
+                // TODO 如果不是文件
                 if (listPath.isFile()) {
                     String erro = path + " is a file";
                     logger.error(erro);
@@ -128,6 +129,8 @@ public class FileController extends BaseController {
 
                 List<FileDetail> reFiles = fileService.listAdminFiles(listPath);
                 return APIResponse.toOkResponse(reFiles);
+            }else {
+                return APIResponse.toExceptionResponse(BizExceptionStatusEnum.USER_HAS_NO_ROLE_ERROR);
             }
         }
 
@@ -171,11 +174,6 @@ public class FileController extends BaseController {
             }
         }
         throw new Exception(BizExceptionStatusEnum.FILE_NOT_EXEC_ERROR.getMessage());
-    }
-
-    // TODO
-    public void viewFile() {
-
     }
 
     // 文件下载,表示/upload后面接的任何路径都会进入到这里
@@ -276,8 +274,73 @@ public class FileController extends BaseController {
         return APIResponse.toExceptionResponse(BizExceptionStatusEnum.FILE_NOT_EXEC_ERROR);
     }
 
-    //TODO
-    public void changeFolder() {
+    /* 移动文件*/
+    @RequestMapping(value = "/changeFolder")
+    public APIResponse changeFolder(@RequestParam("sourceDir") String sourceDir, @RequestParam("targetDir") String targetDir,
+                                    @RequestParam("menuId") Integer menuId) {
+
+        bizLogger.info(new StringBuilder().append("账号：").append(getAccount()).append(" 移动文件:")
+                .append(sourceDir).append(" 到目录 ").append(targetDir));
+
+        // 获取角色对应部门权限
+        List<SysPermissionDto> permissionDtoList = this.getUserPermistion(menuId);
+        if (permissionDtoList != null) {
+            // 移动权限
+            boolean mvFlg = false;
+            // 有上传文件权限的才可移动
+            for (SysPermissionDto dto : permissionDtoList) {
+                // 拥有上传权限
+                if (Constants.PERM_TYPE_UPLOAD.equals(dto.getName())) {
+                    mvFlg = true;
+                    break;
+                }
+            }
+            // 获取列表
+            if (mvFlg) {
+                File sourceFile = new File(sourceDir);
+                File targetFile = new File(targetDir + File.separator + sourceFile.getName());
+                if (sourceFile.exists() && !targetFile.exists()) {
+                    sourceFile.renameTo(targetFile);
+                } else {
+                    return APIResponse.toExceptionResponse(BizExceptionStatusEnum.FILE_EXIT_ERROR);
+                }
+                return APIResponse.toOkResponse();
+            }
+        }
+         return APIResponse.toExceptionResponse(BizExceptionStatusEnum.USER_HAS_NO_ROLE_ERROR);
+    }
+
+    /*文件移动前，获取当前部门内的所有文件夹*/
+    @RequestMapping("/getFolderList")
+    public APIResponse getFolderList( @RequestParam("menuId") Integer menuId, @RequestParam("path") String rootPath) {
+        // 获取角色对应部门权限
+        List<SysPermissionDto> permissionDtoList = this.getUserPermistion(menuId);
+        List<MVDirBean> reFiles = new LinkedList<>();
+        if (permissionDtoList != null) {
+            // 删除权限
+            boolean delFlg = false;
+
+            for (SysPermissionDto dto : permissionDtoList) {
+                // 拥有删除权限
+                if (Constants.PERM_TYPE_DELETE.equals(dto.getName())) {
+                    delFlg = true;
+                    break;
+                }
+            }
+
+            // 获取列表
+            if (delFlg) {
+                LinkedList<MVDirBean> fileLinkList = new LinkedList();
+                MVDirBean rootBean = new MVDirBean();
+                rootBean.setId(rootPath);
+                rootBean.setParent("#");
+                rootBean.setText("");
+                fileLinkList.add(rootBean);
+                reFiles = fileService.getDirs(fileLinkList, rootPath);
+            }
+        }
+        return APIResponse.toOkResponse(reFiles);
+
     }
 
     @RequestMapping(value = "/findByName")
@@ -338,8 +401,5 @@ public class FileController extends BaseController {
             return APIResponse.toExceptionResponse(BizExceptionStatusEnum.FILE_CREATE_ERROR);
         }
     }
-
-
-
 
 }

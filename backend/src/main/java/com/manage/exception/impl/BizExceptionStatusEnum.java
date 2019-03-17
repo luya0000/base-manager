@@ -48,8 +48,9 @@ public enum BizExceptionStatusEnum implements ResponseStatusEnum {
     FILE_CREATE_ERROR(500004, "创建文件失败！"),
     FILE_DELETE_ERROR(500005, "删除文件失败！"),
     FILE_RENAME_ERROR(500006, "文件改名失败！"),
-    FILE_COPY_ERROR(500007, "文件复制失败！"),
-    FILE_NOT_EXEC_ERROR(500008, "无权限操作当前文件或文件夹！"),
+    FILE_EXIT_ERROR(500007, "文件已经存在！"),
+    FILE_MOVE_ERROR(500008, "文件移动失败！"),
+    FILE_NOT_EXEC_ERROR(500009, "无权限操作当前文件或文件夹！"),
 
     ;
 

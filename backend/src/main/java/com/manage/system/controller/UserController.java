@@ -73,7 +73,7 @@ public class UserController extends BaseController {
             if (!ObjectUtils.isEmpty(roles) && !roles.contains(Constants.SYSTEM_TYPE)) {
                 List<DepartBean> departBeanList = departService.getDepartListByRoles(roles);
                 departs = new ArrayList<>();
-                for(DepartBean bean : departBeanList){
+                for (DepartBean bean : departBeanList) {
                     departs.add(bean.getId());
                 }
             }

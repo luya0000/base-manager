@@ -2,11 +2,11 @@ package com.manage.source.service;
 
 import com.manage.common.Constants;
 import com.manage.source.bean.FileDetail;
+import com.manage.source.bean.MVDirBean;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -37,13 +37,13 @@ public class FileService {
             String datetime = DateFormatUtils.format(file.lastModified(), Constants.DATE_FORMAT_YMDHM);
             fileDetail.setDate(datetime);
             if (file.isFile()) {
-                String unit = "";
                 fileDetail.setSize(getSize(file.length()));
                 fileDetail.setUnit(getUnit(file.length()));
                 String fileName = file.getName();
                 fileDetail.setPic(getPic(fileName));
                 fileDetail.setType("file");
             } else {
+                // 文件夹
                 fileDetail.setType("path");
                 fileDetail.setPic("file.png");
             }
@@ -147,10 +147,9 @@ public class FileService {
             if (null != files && files.length > 0) {
                 for (File file2 : files) {
                     if (file2.isDirectory()) {
-                        this.getFilesByFileDir(fileList, file2.getAbsolutePath(),filterName);
+                        this.getFilesByFileDir(fileList, file2.getPath(),filterName);
                     } else if(file2.getName().toLowerCase().contains(filterName.toLowerCase())) {
                         FileDetail detail = new FileDetail();
-                        String unit = new String() ;
                         detail.setName(file2.getName());
                         detail.setPath(file2.getPath());
                         detail.setSize(getSize(file2.length()));
@@ -168,7 +167,32 @@ public class FileService {
         }
         return fileList;
     }
-    /**/
+
+    /*  根据文件名查询文件 */
+    public List<MVDirBean> getDirs(List<MVDirBean> dirList, String filePath){
+
+        File file = new File(filePath);
+        if (file.exists()) {
+            File[] files = file.listFiles();
+            if (null != files && files.length > 0) {
+                for (File file2 : files) {
+                    if (file2.isDirectory()) {
+                        MVDirBean detail = new MVDirBean();
+                        detail.setId(file2.getPath());
+                        detail.setText(file2.getName());
+                        detail.setParent(file2.getParent());
+                        dirList.add(detail);
+                        getDirs(dirList, file2.getPath());
+                    }
+                }
+            }
+        } else {
+            logger.info("目录不存在!");
+        }
+        return dirList;
+    }
+
+    /* 获取图标 */
     private String getPic(String fileName){
         String tmp = fileName.substring(fileName.lastIndexOf('.') + 1);
         String pic="";
@@ -180,7 +204,7 @@ public class FileService {
             } else if ("xls".equals(tmp.toLowerCase()) || "xlsx".equals(tmp.toLowerCase())) {
                 pic = "excel.png";
             } else if ("pdf".equals(tmp.toLowerCase())) {
-                pic = "excel.png";
+                pic = "pdf.png";
             } else {
                 pic = "other.png";
             }

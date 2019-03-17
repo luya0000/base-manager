@@ -34,7 +34,6 @@
     </div>
     <!-- /.col -->
 </div>
-<!-- /.row -->
 
 <!--文件上传model-->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -68,6 +67,45 @@
     </div>
 </div>
 
+<!--文件移动model-->
+<div class="modal fade" id="mvFileModal" tabindex="-1" role="dialog" aria-labelledby="mvFileModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="mvFileModalLabel">选择文件夹</h4>
+            </div>
+            <div class="modal-body">
+                <!-- Horizontal Form -->
+                <div class="box box-info" style="margin-bottom:0px;">
+                    <!-- form start -->
+                    <form class="form-horizontal">
+                        <input type="hidden" id="file_mv_source">
+                        <input type="hidden" id="file_mv_target">
+                        <div id="jstree_demo_div" style="height: 300px;overflow:auto">
+                        </div>
+                        <!-- /.box-body -->
+                    </form>
+                </div>
+                <!-- /.box -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    取<span style="padding-left: 12px"/>消
+                </button>
+                <button type="button" class="btn btn-primary" id="mv_file_btn" onclick="">
+                    移<span style="padding-left: 12px"/>动
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="../plugins/jstree/themes/default/style.min.css">
+<script src="../plugins/jstree/jstree.js"></script>
+
 <script>
     // 根目录
     var rootPath;
@@ -91,7 +129,30 @@
         $('#fileTable').delegate('.c_file', "click", function () {
             var filepath =  $(this).closest("tr").find(".filePath").val();
             var fileName =  this.innerText;
+            var fileUnit = fileName.substring(fileName.length-4);
+            // 格式转换
+            var re = new RegExp("\\\\","g");
+            var relativePath=filepath.replace(re,"/");
+            relativePath = relativePath.replace("./backend/src/main/resources/static/","../../../");
+            // pdf格式预览
+            if(fileUnit.toLowerCase() == ".pdf"){
+                window.open("../../plugins/pdf/web/viewer.html?file="+relativePath,fileName,'height=700, width=1000, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no');
+            }
         });
+
+        // 移动操作事件
+        $('#fileTable').delegate('.action_mv', "click", function () {
+            var filepath =  $(this).closest("tr").find(".filePath").val();
+            $("#file_mv_source").val(filepath);
+            var data = {
+                "path": rootPath,
+                "menuId": $('#menuIdHidden').val()
+            }
+            var tree=$('#jstree_demo_div');
+            tree.jstree({'core':{data:null}})
+            myAjax("GET", false, "/sys/file/getFolderList", data, searchMVDirCallBack);
+        });
+
         // title页文件查询
         $("#searchFileName").keydown(function(event){
             searchFileFlg = false;
@@ -133,7 +194,6 @@
         }
         myAjax("GET", false, "/sys/file/fileList", data, searchFileCallBack);
     }
-
     /*查询路径文件后处理*/
     function searchFileCallBack(result, status) {
         if (result.code != 200) {
@@ -166,7 +226,7 @@
                     '<td class="searchFileColum">' + item.path.replace(rootPath,"") + '</td>',
                     '<td>' + item.date + '</td>',
                     '<td>' + (item.type == "file" ? (item.size + ' ' + item.unit) : "") + '</td>',
-                    '<td>' + (item.type == "file" ? ('<span class="action_mv" />移动</td>') : '') + '</td>'
+                    '<td>' + (item.type == "file" ? ('<span class="action_mv" style="cursor: pointer;">移动</span>') : '') + '</td>'
                 ].join('');
             });
             $('#fileTable').append(tableList);
@@ -177,6 +237,51 @@
             }
         }
     }
+
+    /*查询路径文件后处理*/
+    function searchMVDirCallBack(result) {
+        if (result.code != 200) {
+            layer.alert("目录获取失败", {
+                skin: 'layui-layer-lan' //样式类名
+                , closeBtn: 0
+            });
+        } else {
+            $('#jstree_demo_div').jstree(true).settings.core.data=result.content;
+            $('#jstree_demo_div').jstree(true).refresh();
+            $("#mvFileModal").modal('show');
+        }
+    }
+    /*移动文件目录选择*/
+    $('#jstree_demo_div').on("changed.jstree", function (e, data) {
+        if (data.selected.length) {
+            $("#file_mv_target").val(data.instance.get_node(data.selected[0]).id);
+        }
+    })
+    /*移动文件处理*/
+    $('#mv_file_btn').click(function () {
+        var sourceDir = $("#file_mv_source").val();
+        var targetDir = $("#file_mv_target").val();
+        if (sourceDir && targetDir) {
+            myAjax("post", false, "/sys/file/changeFolder", {
+                "sourceDir": sourceDir,
+                "targetDir": targetDir,
+                "menuId": $('#menuIdHidden').val()
+            }, function (result, status) {
+                if (result.code != 200) {
+                    layer.msg(result.message);
+                }else{
+                    $("#mvFileModal").modal('hide');
+                    var newPath = $("#path").val();
+                    searchFile(newPath);
+                }
+            });
+        } else {
+            layer.alert('原文件或目标目录说去失败，请重新操作！', {
+                skin: 'layui-layer-lan' //样式类名
+                , closeBtn: 0
+            });
+        }
+    })
 
     /*返回按钮*/
     $("#return").click(function () {
@@ -226,7 +331,6 @@
             $(".fileCheckBox").prop("checked", false);
         }
     });
-
     $("#deleFile").click(function () {
         layer.confirm('删除后不可恢复，确认删除？', {
             btn: ['删除', '取消'] //按钮
@@ -290,7 +394,6 @@
         });
         download("/sys/file/download", paths, "post");
     });
-
     function download(url, data, method) {
         //url and data options required
         if (url && data) {

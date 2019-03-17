@@ -1,6 +1,8 @@
 package com.manage.source.bean;
 
-public class FileDetail {
+import java.io.Serializable;
+
+public class FileDetail implements Serializable {
 	private String name;
 	private String type;
 	private long size;
