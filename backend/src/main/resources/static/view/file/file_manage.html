@@ -133,12 +133,13 @@
             // 格式转换
             var re = new RegExp("\\\\","g");
             var relativePath=filepath.replace(re,"/");
+            console.log(relativePath);
             // pdf格式预览
             if(fileUnit.toLowerCase() == ".pdf") {
-                relativePath = relativePath.replace("./backend/src/main/resources/static/","../../../");
+                relativePath = relativePath.replace("/doc","");
                 window.open("../../plugins/pdf/web/viewer.html?file=" + relativePath, fileName, 'height=700, width=1000, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no');
             }else if(fileUnit.toLowerCase() == ".png" || fileUnit.toLowerCase() == ".jpg" || fileUnit.toLowerCase() == "jpeg"|| fileUnit.toLowerCase() == ".gif"){
-                relativePath = relativePath.replace("./backend/src/main/resources/static/","../../");
+                relativePath = relativePath.replace("/doc","");
                 var imageJson = {
                     "title": fileName, //相册标题
                     "start": 0, //初始显示的图片序号，默认0

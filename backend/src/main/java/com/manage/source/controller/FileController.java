@@ -13,7 +13,6 @@ import com.manage.system.bean.DepartBean;
 import com.manage.system.model.SysPermissionDto;
 import com.manage.system.service.DepartService;
 import com.manage.system.service.RolePermService;
-import com.manage.util.file.FileUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;

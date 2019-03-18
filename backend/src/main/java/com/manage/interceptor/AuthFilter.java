@@ -35,7 +35,7 @@ public class AuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         // 跟路径。资源路径跳过
-        if (request.getServletPath().equals("/") || request.getServletPath().contains("/plugins") ||
+        if (request.getServletPath().equals("/") || request.getServletPath().contains("/plugins") || request.getServletPath().contains("/files") ||
                 request.getServletPath().contains("/resource") || request.getServletPath().contains("/view") ||
                 request.getServletPath().equals("/" + jwtProperties.getAuthPath()) || request.getServletPath().contains("/index")) {
             chain.doFilter(request, response);
