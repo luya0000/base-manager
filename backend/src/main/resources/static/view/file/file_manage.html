@@ -133,7 +133,6 @@
             // 格式转换
             var re = new RegExp("\\\\","g");
             var relativePath=filepath.replace(re,"/");
-            console.log(relativePath);
             // pdf格式预览
             if(fileUnit.toLowerCase() == ".pdf") {
                 relativePath = relativePath.replace("/doc","");
